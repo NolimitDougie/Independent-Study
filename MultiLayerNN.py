@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 from sklearn.datasets import fetch_openml
 from sklearn.metrics import accuracy_score, f1_score
-
+# fetch_openml grabs datasets by name or dataset id
 mnist = fetch_openml('mnist_784', version=1, as_frame=False)
 X, y = mnist["data"], mnist["target"]
 print(X.shape, y.shape)
@@ -120,12 +120,12 @@ class ClassificationNet(nn.Module):
             x)  # The output layer does not apply any activation function here, but will be processed directly by loss function
         return x
 
-
 epochs = 10
 learning_rate = 0.01
 weight_decay = 5e-4
 lossfunction = nn.CrossEntropyLoss()
 
+# Explain this line
 model = ClassificationNet()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
