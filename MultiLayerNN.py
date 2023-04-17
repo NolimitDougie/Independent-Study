@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 from sklearn.datasets import fetch_openml
 from sklearn.metrics import accuracy_score, f1_score
+
 # fetch_openml grabs datasets by name or dataset id
 mnist = fetch_openml('mnist_784', version=1, as_frame=False)
 X, y = mnist["data"], mnist["target"]
@@ -24,6 +25,7 @@ def plot_digits(instances, images_per_row=5, **options):
     n_rows = (len(instances) - 1) // images_per_row + 1
     n_empty = n_rows * images_per_row - len(instances)
     padded_instances = np.concatenate([instances, np.zeros((n_empty, size * size))], axis=0)
+    # np.concatenate merges two or more arrays along a specific axis
 
     # Reshape the array, so it's organized as a grid containing 28×28 images:
     image_grid = padded_instances.reshape((n_rows, images_per_row, size, size))
@@ -32,6 +34,7 @@ def plot_digits(instances, images_per_row=5, **options):
 
     # Now that we have a big image, we just need to show it:
     plt.imshow(big_image, cmap=mpl.cm.binary, **options)
+    # imshow displays the data as an image, i.e., on a 2D regular raster.
     plt.axis("off")
 
 
@@ -116,26 +119,28 @@ class ClassificationNet(nn.Module):
     def forward(self, x):
         x = F.relu(self.fc1(x))  # The first hidden layer uses ReLU activation function
         x = F.relu(self.fc2(x))  # The first hidden layer uses ReLU activation function
-        x = self.fc3(
-            x)  # The output layer does not apply any activation function here, but will be processed directly by loss function
+        x = self.fc3(x)
+        # The output layer does not apply any activation function here, but will be processed directly by loss function
         return x
 
+
+# epochs is the training data iterating through the Neural Network
 epochs = 10
 learning_rate = 0.01
 weight_decay = 5e-4
 lossfunction = nn.CrossEntropyLoss()
 
 # Explain this line
+# ClassificationNet() is the base class for Neural Networks models should subclass ClassificationNet
 model = ClassificationNet()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
-
 print(model)
 
 
 # Train the model
+#  epochs = 10, so ten iterations of the training data will be passed through
 def train(epoch):
     model.train()
-
     running_loss = 0.0
     train_total, train_correct = 0.0, 0.0
     y_train, y_pred = [], []
