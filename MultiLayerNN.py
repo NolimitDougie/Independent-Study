@@ -34,7 +34,7 @@ def plot_digits(instances, images_per_row=5, **options):
 
     # Now that we have a big image, we just need to show it:
     plt.imshow(big_image, cmap=mpl.cm.binary, **options)
-    # imshow displays the data as an image, i.e., on a 2D regular raster.
+    # imshow displays the data as an image, i.e., on a 2D scale.
     plt.axis("off")
 
 
@@ -48,7 +48,6 @@ X = X / 255
 y = y.astype(np.uint8)
 
 # Split the data into training set and test set
-
 X_train, X_test, y_train, y_test = X[:60000], X[60000:], y[:60000], y[60000:]
 
 
