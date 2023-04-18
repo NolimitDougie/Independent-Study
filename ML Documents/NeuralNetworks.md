@@ -8,6 +8,9 @@
 Simplest Neural Network - composed of an input layer to receive the signal, an output layer that makes a decision or prediction about the input, and in between those two, an arbitrary number of hidden layers that are the true computational engine of the MLP.
 
 
+## Deep vs Wide Networks 
+
+
 
 
 
@@ -15,13 +18,27 @@ Simplest Neural Network - composed of an input layer to receive the signal, an o
 
 ## Convolution Neural Network 
 
-
 This Neural Network is best to use for image classification.
 
 It’s very good at picking up on patterns in the input image, such as lines, gradients, circles, or even eyes and faces. It is this property that makes convolutional neural networks so powerful for computer vision.
 
 
+### Utility Layer i.e Different Types of layers
+
+Dropout Layer - 
+
+
+
 ## Optimizing Techniques
+
+`Epoch` - The number of times the algorithm runs on the whole training dataset
+
+`Batch` - Denotes the number of samples to be taken for updating model parameters. i.e a batch size of 64 images means your passing 64 images through the neural network before your starting your back propaganda 
+
+`Learning rate` - It is a parameter that provides the model a scale of how much weights should be updated
+
+`Cost Function/Loss Function` - calculates the difference between the predicted value and the actual value
+
 
 ### Exhaustive search
 

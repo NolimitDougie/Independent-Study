@@ -123,6 +123,7 @@ class ClassificationNet(nn.Module):
         return x
 
 
+# HyperParameters
 # epochs is the training data iterating through the Neural Network
 epochs = 10
 learning_rate = 0.01
