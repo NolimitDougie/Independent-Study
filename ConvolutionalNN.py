@@ -45,7 +45,7 @@ def plot_digits(instances, labels, images_per_row=5):
         ax[idx, idy].imshow(instances[i].squeeze(), cmap="gray")
         ax[idx, idy].set_title(class_names[labels[i]])
         ax[idx, idy].axis("off")
-
+# Ask about resizing/plotting images to fit to Neural Networks. ie. imshow(instances.squeeze(), cmap)
 
 fig, ax = plt.subplots(2, 5, figsize=(8, 4))
 example_images = samples[0][:10]
@@ -58,6 +58,7 @@ torch.manual_seed(42)
 
 
 # nn.model is the base class for all neural network modules
+# nn.linear applies linear transformation to the incoming data
 class ClassificationNet(nn.Module):
     def __init__(self):
         super(ClassificationNet, self).__init__()
