@@ -23,10 +23,23 @@ This Neural Network is best to use for image classification.
 It’s very good at picking up on patterns in the input image, such as lines, gradients, circles, or even eyes and faces. It is this property that makes convolutional neural networks so powerful for computer vision.
 
 
+### Activation Functions 
+
+[Activation Function](https://www.analyticsvidhya.com/blog/2020/01/fundamentals-deep-learning-activation-functions-when-to-use-them/)
+
+`ReLU` This means that the neurons will only be deactivated if the output of the linear transformation is less than 0.
+
+`f(x)=max(0,x)` It gives an output x if x is positive and 0 otherwise.
+
 ### Utility Layer i.e Different Types of layers
 
-Dropout Layer - 
+Fully Connected layer 
 
+Convolution Layer
+
+Deconvolution Layer 
+
+Recurrent Layer 
 
 
 ## Optimizing Techniques
@@ -45,6 +58,7 @@ Dropout Layer -
 Exhaustive search, or brute-force search, is the process of looking for the most optimal hyperparameters by checking whether each candidate is a good match.
 
 ### Gradient descent
+
 Gradient descent is the most common algorithm for model optimization for minimizing the error. In order to perform gradient descent, you have to iterate over the training dataset while re-adjusting the model.
 
 `Mini-batch` gradient descent is a variation of the gradient descent algorithm that splits the training dataset into small batches that are used to calculate model error and update model coefficients

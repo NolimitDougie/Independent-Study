@@ -76,10 +76,12 @@ class ClassificationNet(nn.Module):
         x = self.fc2(x)
         return x
 
-
+# Hyperparamters
+# epochs is # of iterations of training data running through the neural network
 epochs = 10
 learning_rate = 0.01
 weight_decay = 5e-4
+# Decreases the learning rate as the network see's an image more than once
 lossfunction = nn.CrossEntropyLoss()
 
 model = ClassificationNet()

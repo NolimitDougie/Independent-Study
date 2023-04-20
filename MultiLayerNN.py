@@ -31,7 +31,6 @@ def plot_digits(instances, images_per_row=5, **options):
     image_grid = padded_instances.reshape((n_rows, images_per_row, size, size))
     big_image = image_grid.transpose(0, 2, 1, 3).reshape(n_rows * size,
                                                          images_per_row * size)
-
     # Now that we have a big image, we just need to show it:
     plt.imshow(big_image, cmap=mpl.cm.binary, **options)
     # imshow displays the data as an image, i.e., on a 2D scale.
@@ -115,6 +114,7 @@ class ClassificationNet(nn.Module):
         self.fc2 = nn.Linear(300, 100)  # The second hidden layer with 100 neurons
         self.fc3 = nn.Linear(100, 10)  # The output layer with 10 classes
 
+    # ReLU function gives an output x if x is positive and 0 otherwise.
     def forward(self, x):
         x = F.relu(self.fc1(x))  # The first hidden layer uses ReLU activation function
         x = F.relu(self.fc2(x))  # The first hidden layer uses ReLU activation function
