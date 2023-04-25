@@ -37,7 +37,7 @@ samples = next(dataiter)
 print(samples[0].shape)
 print(samples[1].shape)
 
-
+# Ask about the plot digit function
 def plot_digits(instances, labels, images_per_row=5):
     for i in range(len(instances)):
         idx = i // images_per_row
@@ -59,6 +59,7 @@ torch.manual_seed(42)
 
 # nn.model is the base class for all neural network modules
 # nn.linear applies linear transformation to the incoming data
+# kernel size = 5 x 5 moving over 1 pixel
 class ClassificationNet(nn.Module):
     def __init__(self):
         super(ClassificationNet, self).__init__()
@@ -67,6 +68,9 @@ class ClassificationNet(nn.Module):
         self.fc1 = nn.Linear(320, 50)
         self.fc2 = nn.Linear(50, 10)
 
+    # Relu Activation function gives an output x if x is positive and 0 otherwise.
+    # Max_pool
+    # Flatten - reshapes the image data to a vector
     def forward(self, x):
         x = F.relu(self.conv1(x))  # Use ReLU as activation function
         x = F.max_pool2d(x, 2)  # Apply max_pooling on the output of the convolution layer

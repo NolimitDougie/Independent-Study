@@ -69,7 +69,7 @@ class ConvertDataset(Dataset):
 
         return sample
 
-
+# Ask about the ToTensor object conversion
 class ToTensor(object):
     def __call__(self, sample):
         label, features = sample['label'], sample['features']

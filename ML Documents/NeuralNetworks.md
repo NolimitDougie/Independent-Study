@@ -62,3 +62,12 @@ Exhaustive search, or brute-force search, is the process of looking for the most
 Gradient descent is the most common algorithm for model optimization for minimizing the error. In order to perform gradient descent, you have to iterate over the training dataset while re-adjusting the model.
 
 `Mini-batch` gradient descent is a variation of the gradient descent algorithm that splits the training dataset into small batches that are used to calculate model error and update model coefficients
+
+### Stochastic Gradient Descent 
+
+Stochastic Gradient Descent, instead of taking the whole dataset for each iteration, we randomly select batches of data. So your testing a few sample batches from the dataset
+
+First select the initial parameters `w` and the learning rate `n`. Then shuffle the data at each iteration to get the minimum
+
+SDG uses higher number of iterations to reach the local minima thus increasing the overall computation time. 
+
