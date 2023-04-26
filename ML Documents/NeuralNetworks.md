@@ -71,3 +71,8 @@ First select the initial parameters `w` and the learning rate `n`. Then shuffle 
 
 SDG uses higher number of iterations to reach the local minima thus increasing the overall computation time. 
 
+### Adam Deep learning Optimizer 
+
+Extension of stochastic gradient descent to update network weights during training. Adam optimizer updates the learning rate for each network weight individually
+
+The Algorithm is straight forward to implement, has a faster running time, lower memory requirements, and requires less tuning than any other optimization algorithms 
