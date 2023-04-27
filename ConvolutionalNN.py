@@ -31,11 +31,12 @@ test_dataloader = DataLoader(test_dataset, batch_size=64, shuffle=False, num_wor
 class_names = ['0', '1', '2', '3', '4',
                '5', '6', '7', '8', '9']
 
-# One batach has 64 images
+# One batch has 64 images
 dataiter = iter(train_dataloader)
 samples = next(dataiter)
 print(samples[0].shape)
 print(samples[1].shape)
+
 
 # Ask about the plot digit function
 def plot_digits(instances, labels, images_per_row=5):
@@ -45,6 +46,8 @@ def plot_digits(instances, labels, images_per_row=5):
         ax[idx, idy].imshow(instances[i].squeeze(), cmap="gray")
         ax[idx, idy].set_title(class_names[labels[i]])
         ax[idx, idy].axis("off")
+
+
 # Ask about resizing/plotting images to fit to Neural Networks. ie. imshow(instances.squeeze(), cmap)
 
 fig, ax = plt.subplots(2, 5, figsize=(8, 4))
@@ -80,6 +83,7 @@ class ClassificationNet(nn.Module):
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
         return x
+
 
 # Hyperparamters
 # epochs is # of iterations of training data running through the neural network
