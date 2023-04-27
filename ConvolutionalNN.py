@@ -99,6 +99,7 @@ optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight
 print(model)
 
 
+# Ask about how to set up your training for different data sets
 def train(epoch):
     model.train()
 

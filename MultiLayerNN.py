@@ -107,7 +107,7 @@ test_dataloader = DataLoader(test_dataset, batch_size=64, shuffle=False, num_wor
 np.random.seed(42)
 torch.manual_seed(42)
 
-
+# 28 * 28 784 features. nn.Linear is downsizing the image to fit for the layers
 class ClassificationNet(nn.Module):
     def __init__(self):
         super(ClassificationNet, self).__init__()
