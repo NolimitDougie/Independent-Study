@@ -1,3 +1,5 @@
+import torchvision.utils
+import matplotlib.pyplot as plt
 import numpy as np
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
@@ -17,6 +19,8 @@ transform = transforms.Compose([
     transforms.ToTensor(),
 ])
 
+batch_size = 64
+
 # Download the MINST data directly from PyTorch
 # The downloaded datasets are stored in the same folder with this jupyter notebook file
 # For train dataset, use "train=True"
@@ -31,11 +35,19 @@ test_dataloader = DataLoader(test_dataset, batch_size=64, shuffle=False, num_wor
 class_names = ['airplane', 'car', 'bird', 'cat', 'deer',
                'dog', 'frog', 'horse', 'ship', 'truck']
 
+
+def imshow(img):
+    npimg = img.numpy()
+    plt.imshow(np.transpose(npimg, (1, 2, 0)))
+    plt.show()
+
+
 # One batch has 64 images
 dataiter = iter(train_dataloader)
-samples = next(dataiter)
-print(samples[0].shape)
-print(samples[1].shape)
+images, labels = next(dataiter)
+
+# show images
+imshow(torchvision.utils.make_grid(images))
 
 np.random.seed(42)
 torch.manual_seed(42)
@@ -66,14 +78,14 @@ class ClassificationNet(nn.Module):
 
 # Hyperparamters
 # epochs is # of iterations of training data running through the neural network
-epochs = 10
+epochs = 3
 learning_rate = 0.01
 weight_decay = 5e-4
 # Decreases the learning rate as the network see's an image more than once
 lossfunction = nn.CrossEntropyLoss()
 
 model = ClassificationNet()
-optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+optimizer = optim.SGD(model.parameters(), lr=learning_rate)
 
 print(model)
 
@@ -86,6 +98,7 @@ def train(epoch):
     y_train, y_pred = [], []
 
     for i, (features, labels) in enumerate(train_dataloader):
+
         optimizer.zero_grad()
 
         outputs = model(features)
@@ -126,7 +139,7 @@ def test():
     with torch.no_grad():
         for features, labels in test_dataloader:
             outputs = model(features)
-
+            # max returns (value ,index)
             _, predicted = torch.max(outputs.data, 1)
             test_total += labels.size(0)
             test_correct += (predicted == labels.long()).sum().item()
