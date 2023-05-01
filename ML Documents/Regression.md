@@ -11,15 +11,9 @@ Logistic Regression - used to predict categorical outcomes unlike linear regress
 
 Predicts the value of a variable based on the value of another variable
 
-
 A Linear Regression model’s main aim is to find the best fit linear line and the optimal values of intercept and coefficients such that the error is minimized. 
 Error is the difference between the actual value and Predicted value and the goal is to reduce this difference.
 
  `y = Bo + b1x`
-
-
-
-
-
 
 ## Multiple Regression 

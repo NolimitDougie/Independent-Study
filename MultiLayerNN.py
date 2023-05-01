@@ -17,6 +17,7 @@ mnist = fetch_openml('mnist_784', version=1, as_frame=False)
 X, y = mnist["data"], mnist["target"]
 print(X.shape, y.shape)
 
+
 # Ask about this function
 # Ask about different way to prepare data before entering the NN also how to check labels in NN
 # Plot the data
@@ -49,6 +50,7 @@ y = y.astype(np.uint8)
 
 # Split the data into training set and test set
 X_train, X_test, y_train, y_test = X[:60000], X[60000:], y[:60000], y[60000:]
+
 
 # Ask about the ConvertData set function
 class ConvertDataset(Dataset):
@@ -107,6 +109,7 @@ test_dataloader = DataLoader(test_dataset, batch_size=64, shuffle=False, num_wor
 
 np.random.seed(42)
 torch.manual_seed(42)
+
 
 # 28 * 28 784 features. nn.Linear is downsizing the image to fit for the layers
 class ClassificationNet(nn.Module):
@@ -175,6 +178,7 @@ def train(epoch):
 # Train the model
 for epoch in range(1, epochs + 1):
     train(epoch)
+
 
 # Ask about the test function
 # Define the test function

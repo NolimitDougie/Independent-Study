@@ -20,6 +20,23 @@ This Neural Network is best to use for image classification.
 It’s very good at picking up on patterns in the input image, such as lines, gradients, circles, or even eyes and faces. It is this property that makes convolutional neural networks so powerful for computer vision.
 
 
+### Recurrent Neural Network
+
+[RNN resource](https://towardsdatascience.com/recurrent-neural-networks-explained-with-a-real-life-example-and-python-code-e8403a45f5de)
+
+RNN works on the principle of saving the output of a particular layer and feeding this back to the input in order to predict the output of the layer.
+
+What distinguishes a Recurrent Neural Network from the MultiLayer Perceptron is that a Recurrent Neural Network is built to handle inputs that represent a sequence
+
+Recurrent Neural Networks act like a chain. The computation performed at each time step, depends on the previous computation.
+
+Input state, which captures the input data for the model.
+
+Output state, which captures the results of the model.
+
+Recurrent state, which is in fact a chain of hidden states, and captures all the computations between the input and output states.
+
+
 ### Activation Functions 
 
 [Activation Function](https://www.analyticsvidhya.com/blog/2020/01/fundamentals-deep-learning-activation-functions-when-to-use-them/)
