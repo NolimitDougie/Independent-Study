@@ -133,6 +133,7 @@ weight_decay = 5e-4
 lossfunction = nn.CrossEntropyLoss()
 
 # Explain this line
+# Ask about how to choose the best optimizer for your data in the NN
 # ClassificationNet() is the base class for Neural Networks models should subclass ClassificationNet
 model = ClassificationNet()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)

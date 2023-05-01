@@ -3,6 +3,10 @@
 [Types of Neural Networks](https://www.mygreatlearning.com/blog/types-of-neural-networks/
 )
 
+### Image Transformers 
+[Explanation on Transformers](https://towardsdatascience.com/using-transformers-for-computer-vision-6f764c5a078b)
+
+
 ## Multilayer Perception 
 
 Simplest Neural Network - composed of an input layer to receive the signal, an output layer that makes a decision or prediction about the input, and in between those two, an arbitrary number of hidden layers that are the true computational engine of the MLP.
