@@ -8,13 +8,6 @@
 Simplest Neural Network - composed of an input layer to receive the signal, an output layer that makes a decision or prediction about the input, and in between those two, an arbitrary number of hidden layers that are the true computational engine of the MLP.
 
 
-## Deep vs Wide Networks 
-
-
-
-
-
-
 
 ## Convolution Neural Network 
 

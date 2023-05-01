@@ -17,7 +17,8 @@ mnist = fetch_openml('mnist_784', version=1, as_frame=False)
 X, y = mnist["data"], mnist["target"]
 print(X.shape, y.shape)
 
-
+# Ask about this function
+# Ask about different way to prepare data before entering the NN also how to check labels in NN
 # Plot the data
 def plot_digits(instances, images_per_row=5, **options):
     size = 28
@@ -49,7 +50,7 @@ y = y.astype(np.uint8)
 # Split the data into training set and test set
 X_train, X_test, y_train, y_test = X[:60000], X[60000:], y[:60000], y[60000:]
 
-
+# Ask about the ConvertData set function
 class ConvertDataset(Dataset):
     def __init__(self, features, labels, transform=None):
         self.features = features
@@ -174,7 +175,7 @@ def train(epoch):
 for epoch in range(1, epochs + 1):
     train(epoch)
 
-
+# Ask about the test function
 # Define the test function
 def test():
     model.eval()
