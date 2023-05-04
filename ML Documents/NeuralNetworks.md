@@ -50,16 +50,20 @@ RNN mostly used for natural language processing and speech rechonightion
 
 `f(x)=max(0,x)` It gives an output x if x is positive and 0 otherwise.
 
+`Sigmoid or Logistic Activation Function` Has an S shaped curve the function exist between 0 and 1 used for models where we have to predict the probability as an output
+
+
 ### Utility Layer i.e Different Types of layers
+
+[Types of layers](https://towardsdatascience.com/four-common-types-of-neural-network-layers-c0d3bb2a966c#:~:text=The%20four%20most%20common%20types,how%20they%20can%20be%20used)
 
 Fully Connected layer 
 
-Convolution Layer
+Convolution Layer 
 
 Deconvolution Layer 
 
-Recurrent Layer 
-
+Recurrent Layer  
 
 ## Optimizing Techniques
 

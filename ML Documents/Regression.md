@@ -17,3 +17,5 @@ Error is the difference between the actual value and Predicted value and the goa
  `y = Bo + b1x`
 
 ## Multiple Regression 
+
+Equation - bo is the intercept, b1,b2,b3,b4…, are coefficients or slopes of the independent variables x1,x2,x3,x4…,xn and y is the dependent variable.
