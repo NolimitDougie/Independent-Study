@@ -3,6 +3,9 @@
 [Types of Neural Networks](https://www.mygreatlearning.com/blog/types-of-neural-networks/
 )
 
+[Confusion Matrix](https://www.analyticsvidhya.com/blog/2021/05/in-depth-understanding-of-confusion-matrix/
+)
+
 ### Image Transformers 
 [Explanation on Transformers](https://towardsdatascience.com/using-transformers-for-computer-vision-6f764c5a078b)
 
@@ -35,6 +38,8 @@ Input state, which captures the input data for the model.
 Output state, which captures the results of the model.
 
 Recurrent state, which is in fact a chain of hidden states, and captures all the computations between the input and output states.
+
+RNN mostly used for natural language processing and speech rechonightion 
 
 
 ### Activation Functions 
