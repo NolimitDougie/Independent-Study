@@ -22,7 +22,9 @@ Equation - bo is the intercept, b1,b2,b3,b4…, are coefficients or slopes of th
 
 ### Decision Tree’s
 
+A decision tree is a supervised machine-learning algorithm that can be used for both classification and regression problems
 
+Random Forest is a tree-based machine learning algorithm that leverages the power of multiple decision trees for making decisions
 
-
+The Random Forest Algorithm combines the output of multiple (randomly created) Decision Trees to generate the final output.
 
