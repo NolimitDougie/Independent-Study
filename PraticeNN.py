@@ -153,6 +153,7 @@ def test():
 
 
 # Test the model
+# Different Strategies to improve the training on the model
 y_test, y_pred = test()
 
 confusion = confusion_matrix(y_test, y_pred)

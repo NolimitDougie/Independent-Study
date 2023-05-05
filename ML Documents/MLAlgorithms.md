@@ -24,3 +24,5 @@ Equation - bo is the intercept, b1,b2,b3,b4…, are coefficients or slopes of th
 
 
 
+
+

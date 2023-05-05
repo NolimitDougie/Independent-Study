@@ -63,6 +63,8 @@ torch.manual_seed(42)
 # nn.model is the base class for all neural network modules
 # nn.linear applies linear transformation to the incoming data
 # kernel size = 5 x 5 moving over 1 pixel
+# A good question might be when to make a deep vs wide network.
+# i.e how to determine how many layers to put in Convolution Neural Network
 class ClassificationNet(nn.Module):
     def __init__(self):
         super(ClassificationNet, self).__init__()
