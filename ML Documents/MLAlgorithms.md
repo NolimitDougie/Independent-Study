@@ -1,11 +1,11 @@
-# Machine Learning Regression 
+# Machine Learning Algorithms
+
 
 ## Logistic Regression 
 
 Used to describe data and to explain the relationship between one dependent binary variable and one or more nominal, ordinal, interval or ratio-level independent variables.
 
 Logistic Regression - used to predict categorical outcomes unlike linear regression that predicts a continuous outcome.
-
 
 ## Linear Regression 
 
@@ -19,3 +19,8 @@ Error is the difference between the actual value and Predicted value and the goa
 ## Multiple Regression 
 
 Equation - bo is the intercept, b1,b2,b3,b4…, are coefficients or slopes of the independent variables x1,x2,x3,x4…,xn and y is the dependent variable.
+
+### Decision Tree’s
+
+
+

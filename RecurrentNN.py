@@ -22,8 +22,8 @@ transform = transforms.Compose([
 # Hyper-parameters
 # input_size = 784 # 28x28
 num_classes = 10
-num_epochs = 2
-batch_size = 100
+num_epochs = 10
+batch_size = 64
 learning_rate = 0.001
 
 input_size = 28
