@@ -64,6 +64,10 @@ Convolution Layer
 Deconvolution Layer 
 
 Recurrent Layer  
+ 
+Batch Normalization 
+
+Maxpooling 
 
 ## Optimizing Techniques
 
