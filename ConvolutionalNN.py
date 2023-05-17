@@ -136,6 +136,9 @@ def train(epoch):
         epoch, train_correct / train_total, macro_f1, running_loss / train_total))
 
 
+print("Finished Training")
+
+
 # Train the model
 for epoch in range(1, epochs + 1):
     train(epoch)

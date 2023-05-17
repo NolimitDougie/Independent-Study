@@ -12,7 +12,6 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, f1_score
 
-
 # Device configuration
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -221,4 +220,3 @@ microf1 = f1_score(y_test, y_pred, average='micro')
 print('Accuracy: {:.2f}'.format(acc))
 print('Macro F1-score: {:.2f}'.format(macrof1))
 print('Micro F1-score: {:.2f}'.format(microf1))
-

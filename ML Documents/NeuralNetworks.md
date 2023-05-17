@@ -69,6 +69,8 @@ Batch Normalization
 
 Maxpooling 
 
+Dropout Layer
+
 ## Optimizing Techniques
 
 `Epoch` - The number of times the algorithm runs on the whole training dataset
