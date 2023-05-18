@@ -75,9 +75,9 @@ class ConvNet(nn.Module):
 
 ### Implementation Details 
 
-For the Convolution Neural Network I went with a Convolution filter layer applied followed by Relu activation function and Batch2d layer (batch normalization). 
-A MaxPooling layer is applied to scale the image down before going in to the next convolution filter. The dropout layers are there to prevent over fitting with the data 
-
+For this Convolution Neural Network, I went with a Convolution filter layer applied followed by the Relu activation function and Batch2d layer (batch normalization). 
+A MaxPooling layer is applied to scale the image down before going into the next convolution filter. The dropout layers are there to prevent overfitting the data.
+The drop-out layer randomly selects nodes to be dropped out with a given probability
 
 ### HyperParameters
 ```
@@ -109,8 +109,12 @@ Micro F1-score: 0.84
 
 ## Model 2 Testing 
 
-### Model 2
-
+### Hyperparameters 
+```
+num_epochs = 30
+batch_size = 4
+learning_rate = 0.001
+```
 ### Architecture of the CNN
 
 ```
@@ -136,7 +140,6 @@ class ConvNet(nn.Module):
         x = self.fc2(x)  # -> n, 10
         return x
 ```
-
 ###  Model Accuracy 
 
 ```Accuracy of the network: 71.81 %```
