@@ -9,11 +9,12 @@ from torchvision import datasets, transforms
 from torch.utils.data import Dataset, DataLoader
 import torch
 import torchvision
-from keras_preprocessing.image import ImageDataGenerator
-
+# from keras_preprocessing.image import ImageDataGenerator
+from PIL import Image
 
 # Device configuration
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 # Paths to files and DataEntry file
 all_xray_df = pd.read_csv('NihXrayData/Data_Entry_2017.csv')
 allImagesGlob = glob('NihXrayData/images*/images/*.png')
@@ -43,6 +44,7 @@ print(count_per_unique_label)
 # ### Data Pre Processing ####
 condition_labels = set()
 
+
 def sep_diseases(x):
     list_diseases = x.split('|')
     for item in list_diseases:
@@ -50,6 +52,7 @@ def sep_diseases(x):
     return list_diseases
 
 
+# Adds a column to the data frame "disease_vec" and add the condition labels to the data frame
 all_xray_df['disease_vec'] = all_xray_df['Finding Labels'].apply(sep_diseases)
 condition_labels = list(condition_labels)
 condition_labels.sort()
@@ -66,44 +69,73 @@ print('Number of validation examples:', test_df.shape[0])
 train_df.to_csv('train_df.csv', index=False)
 test_df.to_csv('test_df.csv', index=False)
 
-# # # once saved , use the following statements to load train and test dataframes subsequently
 train_df = pd.read_csv('train_df.csv')
 test_df = pd.read_csv('test_df.csv')
 
 train_df.head()
-
 print(train_df)
 
-# IMG_SIZE = (128, 128)
-# all_labels = ['Atelectasis', 'Cardiomegaly', 'Consolidation', 'Edema', 'Effusion', 'Emphysema', 'Fibrosis', 'Hernia', 'Infiltration', 'Mass', 'No Finding', 'Nodule', 'Pleural_Thickening', 'Pneumonia', 'Pneumothorax']
-#
-# core_idg = ImageDataGenerator(rescale=1.0/255.0, validation_split = 0.06)
-#
-# # obtain the training images using the above generator
-# train_gen = core_idg.flow_from_dataframe(
-#         dataframe=train_df,
-#         directory=None,
-#         x_col='path',
-#         y_col=all_labels,
-#         target_size=(128, 128),
-#         batch_size=64,
-#         class_mode='raw',
-#         classes=all_labels,
-#         shuffle=True,
-#         color_mode = "grayscale",
-#         subset='training')
-#
-# # obtain the validation images using the above generator
-# test_gen = core_idg.flow_from_dataframe(
-#         dataframe=test_df,
-#         directory=None,
-#         x_col='path',
-#         y_col=all_labels,
-#         target_size=(128, 128),
-#         batch_size=64,
-#         class_mode='raw',
-#         classes=all_labels,
-#         shuffle=False,
-#         color_mode = "grayscale",
-#         subset='validation')
 
+class XrayData(torch.utils.data.Dataset):
+    def __init__(self, data_frame, transforms=None):
+        self.data_frame = data_frame
+        self.transforms = transforms
+        self.len = data_frame.shape[0]
+
+    def __len__(self):
+        return self.len
+
+    def __getitem__(self, index):
+        row = self.data_frame.iloc[index]
+        address = row['path']
+        x = Image.open(address).convert('RGB')
+
+        vec = np.array(row['disease_vec'], dtype=float)  # np.float64 or np.float
+        y = torch.FloatTensor(vec)
+
+        if self.transforms:
+            x = self.transforms(x)
+        return x, y
+
+
+# train_transform = transforms.Compose([
+#     transforms.RandomRotation(20),
+#     transforms.RandomResizedCrop(224, scale=(0.63, 1)),
+#     transforms.ToTensor(),
+#     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+#
+# test_transform = transforms.Compose([
+#     transforms.Resize(230),
+#     transforms.CenterCrop(224),
+#     transforms.ToTensor(),
+#     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
+
+transform = transforms.Compose([
+    # transforms.Resize(256),
+    # transforms.CenterCrop(224),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])]
+)
+dsetTrain = XrayData(train_df, transform)
+dsetTest = XrayData(test_df, transform)
+
+print(dsetTest)
+
+train_loader = torch.utils.data.DataLoader(dataset=dsetTrain, batch_size=64, shuffle=True, num_workers=8)
+test_loader = torch.utils.data.DataLoader(dataset=dsetTest, batch_size=64, shuffle=False, num_workers=8)
+
+
+def imshow(img):
+    img = img / 2 + 0.48  # unnormalize
+    npimg = img.numpy()
+    plt.imshow(np.transpose(npimg, (1, 2, 0)))
+    plt.show()
+
+
+# dataiter = iter(train_loader)
+# images, labels = dataiter.next()
+
+imshow(torchvision.utils.make_grid(images))
+# show images
+np.random.seed(42)
+torch.manual_seed(42)
