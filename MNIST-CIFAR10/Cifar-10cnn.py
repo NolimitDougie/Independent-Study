@@ -172,8 +172,8 @@ def train(epoch):
         y_pred += train_predicted.tolist()
 
         if i % 2000 == 0:
-            print('Epoch: {} [{}/{} ({:.0f}%)]\tloss: {:.6f}'.format(
-                epoch, i * len(images), len(train_loader.dataset),
+            print('Epoch: loss: {:.6f}'.format(
+                num_epochs, i * len(images), len(train_loader.dataset),
                        100. * i / len(train_loader), loss.item()))
 
     macro_f1 = f1_score(y_train, y_pred, average='macro')
