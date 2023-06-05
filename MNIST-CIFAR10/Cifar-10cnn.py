@@ -13,7 +13,10 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, f1_score
 
 # Device configuration
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+if torch.backends.mps.is_available():
+    mps_device = torch.device("mps")
+else:
+    print("MPS device not found.")
 
 # Hyper-parameters
 num_epochs = 50
@@ -135,7 +138,9 @@ class ConvNet(nn.Module):
         return x
 
 
-model = ConvNet().to(device)
+model = ConvNet()
+
+model.to(mps_device)
 
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
@@ -152,8 +157,8 @@ def train(epoch):
     for i, (images, labels) in enumerate(train_loader):
         # origin shape: [4, 3, 32, 32] = 4, 3, 1024
         # input_layer: 3 input channels, 6 output channels, 5 kernel size
-        images = images.to(device)
-        labels = labels.to(device)
+        images = images.to(mps_device)
+        labels = labels.to(mps_device)
 
         # Forward pass
         outputs = model(images)
@@ -173,7 +178,7 @@ def train(epoch):
 
         if i % 2000 == 0:
             print('Epoch: loss: {:.6f}'.format(
-                num_epochs, i * len(images), len(train_loader.dataset),
+                epoch, i * len(images), len(train_loader.dataset),
                        100. * i / len(train_loader), loss.item()))
 
     macro_f1 = f1_score(y_train, y_pred, average='macro')
@@ -193,8 +198,8 @@ def test():
 
     with torch.no_grad():
         for images, labels in test_loader:
-            images = images.to(device)
-            labels = labels.to(device)
+            images = images.to(mps_device)
+            labels = labels.to(mps_device)
             outputs = model(images)
 
             _, predicted = torch.max(outputs.data, 1)
