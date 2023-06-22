@@ -255,7 +255,7 @@ def test():
             outputs = model(images)
             predicted_probs = torch.sigmoid(outputs)
             # predicted_labels = torch.round(predicted_probs)
-            predicted_labels = (predicted_probs > 0.50).float()
+            predicted_labels = (predicted_probs > 0.20).float()
 
             test_predictions.append(predicted_labels.cpu().numpy())
             test_labels.append(labels.cpu().numpy())
