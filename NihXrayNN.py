@@ -18,7 +18,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import TensorDataset
 from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score, roc_auc_score, \
-    multilabel_confusion_matrix
+    multilabel_confusion_matrix, roc_curve, auc
 
 # Device configuration
 if torch.backends.mps.is_available():
@@ -59,6 +59,8 @@ all_xray_df.head()
 
 # Splitting the Data Frames into 80:20 split ###
 train_df, test_df = train_test_split(all_xray_df, test_size=0.20, random_state=2020)
+
+
 #  eof Data Splitting ###
 
 
@@ -188,6 +190,7 @@ model = ConvNet().to(mps_device)
 #
 # model = DenseNet121().to(mps_device)
 
+
 # Hyper Parameters
 num_epochs = 2
 weight_decay = 1e-1
@@ -252,7 +255,7 @@ def test():
             outputs = model(images)
             predicted_probs = torch.sigmoid(outputs)
             # predicted_labels = torch.round(predicted_probs)
-            predicted_labels = (predicted_probs > 0.60).float()
+            predicted_labels = (predicted_probs > 0.50).float()
 
             test_predictions.append(predicted_labels.cpu().numpy())
             test_labels.append(labels.cpu().numpy())
@@ -277,6 +280,14 @@ print(confusion)
 print('Roc Score\n')
 print(roc_Score)
 
+# create plot
+fig, c_ax = plt.subplots(1, 1, figsize=(9, 9))
+for (i, label) in enumerate(condition_labels):
+    fpr, tpr, thresholds = roc_curve(test_labels[:, i].astype(int), test_predictions[:, i])
+    c_ax.plot(fpr, tpr, label='%s (AUC:%0.2f)' % (label, auc(fpr, tpr)))
 
-
-
+# Set labels for plot
+c_ax.legend()
+c_ax.set_xlabel('False Positive Rate')
+c_ax.set_ylabel('True Positive Rate')
+plt.show()

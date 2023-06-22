@@ -24,7 +24,6 @@ Emphysema                     892
 Infiltration|Nodule           829
 ```
 
-
 ### Data Graph
 
 ![img.png](img.png)
@@ -47,9 +46,14 @@ By adjusting the model's threshold, I was able to observe changes in accuracy an
 ## Model 
 
 Model - DenseNet 121 
+
 Model  - A custom architecture with 4 convolution filters and 3 fully connected layers 
 
 ## Model Accuracy 
+
+Threshold of .10 
+
+![img_1.png](img_1.png)
 
 
 
