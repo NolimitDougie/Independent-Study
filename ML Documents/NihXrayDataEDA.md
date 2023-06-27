@@ -2,7 +2,8 @@
 
 Image Size 1024 * 1024 
 
-Data set includes patient information such as patient id, age, gender, and follow-up visits 
+NIH Chest X-ray Dataset consists of 112,120 X-ray images with disease labels from 30,805 unique patients each image can contain multiple diseases. 
+Data set includes patient information such as patient id, age, gender, and follow-up visits
 
 ## Data Distribution 
 
@@ -24,41 +25,68 @@ Emphysema                     892
 Infiltration|Nodule           829
 ```
 
-### Data Graph
+### Images with single labels vs Multi Labeled Images 
 
 ![img.png](img.png)
 
-## Implementation 
+## Implementation Discussion
 
-NIH Chest X-ray Dataset consists of 112,120 X-ray images with disease labels from 30,805 unique patients. 
-I read in the data into all_xray_df dataframe for the labels on each image. I set up and auto encoder to represent the multiple disease in the images
+### Preprocessing 
 
+To prepare the dataset to be fed through the neural network, several preprocessing steps and data augmentation techniques were applied. The process began by reading in the 'Data_Entry_2017.csv' file and creating a dataframe. 
+Then, a loop was executed to map the image paths to the corresponding rows in the dataframe.
+
+For the labels, a simplified set of 14 primary classes (excluding 'No Finding') was created and stored in an array called 'condition_labels'. To construct an auto-encoder for the labels, another loop was performed over the 'condition_labels' array. For each label, a new column was added to the dataframe, named after the label. The values in this column were set to 1.0 if the corresponding condition was present in the 'Finding Labels' column, and 0 otherwise. This transformation was achieved using a lambda function that checked the presence of the label in the 'Finding Labels' column.
+
+In addition, a new column called 'disease_vec' was introduced to the dataframe. This column contained a list of values representing the presence or absence of each disease condition for each image in each row of the dataframe. This transformation was implemented using a lambda function that selected the values from the condition columns created in the previous step and converted them into a list.
+
+From there I created a custom PyTorch dataset class called XrayDataset that takes a DataFrame containing image paths and labels as input. The ```__getitem__``` method retrieves a sample by opening the image at a given index, converting it to RGB, and applying specified transformations. It also extracts the corresponding label from the DataFrame and converts it to a NumPy array. The ```__len__```method returns the total number of samples in the dataset.
+
+
+### Training and Testing 
+
+For the training and testing of the model, I employed the BCEWithLogitsLoss() loss function, which applies a sigmoid transformation to the data, resulting in values between 0 and 1. 
+To align these values with the label tensor, I utilized a threshold to round the data down to 0 or up to 1, effectively converting it into binary form. This gets the predicted labels into a form which can be
+compared against the actual labels 
+
+
+### Measuring the models performance 
+
+For measuring the performance of the model I included some multi-label confusion matrix to get a insight on what the model is predicting for each class. 
+
+-- Add more information here 
+
+## Models
+
+Model - DenseNet 121 
+
+Model  - A custom architecture with 4 convolution filters and 3 fully connected layers.
+
+## Observations 
+
+During the testing phase, I noticed the threshold's impact on the model's accuracy and true positive rate. When the threshold was lowered, the model's overall accuracy exhibited a decrease, but this reduction in accuracy was accompanied by an increase in the true positive rate as revealed by the confusion matrix. 
+On the other hand, raising the threshold resulted in an increase in overall accuracy, but this increment in accuracy was accompanied by a decrease in the true positive rate
+
+## Test 
+
+Hyperparameters & Loss function
 ```
 learning_rate = 0.001
 criterion = nn.BCEWithLogitsLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 ```
 
-In my model, I employed the BCEWithLogitsLoss() loss function, which applies a sigmoid transformation to the data, resulting in values between 0 and 1. 
-To align these values with the label tensor, I utilized a threshold to round the data down to 0 or up to 1, effectively converting it into binary form. 
-By adjusting the model's threshold, I was able to observe changes in accuracy and the true positive rate within the multi-label confusion matrix for each class. 
 
-## Model 
-
-Model - DenseNet 121 
-
-Model  - A custom architecture with 4 convolution filters and 3 fully connected layers 
-
-## Model Accuracy 
-
-Threshold of .10 
-
-![img_1.png](img_1.png)
+-- Include test performed with details 
 
 
-Threshold of .20 
+## Results 
 
-![img_2.png](img_2.png)
+
+-- Include details about results 
+
+
+
 
 
 
