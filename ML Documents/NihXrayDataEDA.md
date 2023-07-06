@@ -31,7 +31,7 @@ Infiltration|Nodule           829
 
 ## Implementation Discussion
 
-### Preprocessing 
+## Preprocessing 
 
 To prepare the dataset to be fed through the neural network, several preprocessing steps and data augmentation techniques were applied. The process began by reading in the 'Data_Entry_2017.csv' file and creating a dataframe. 
 Then, a loop was executed to map the image paths to the corresponding rows in the dataframe.
@@ -43,14 +43,27 @@ In addition, a new column called 'disease_vec' was introduced to the dataframe. 
 From there I created a custom PyTorch dataset class called XrayDataset that takes a DataFrame containing image paths and labels as input. The ```__getitem__``` method retrieves a sample by opening the image at a given index, converting it to RGB, and applying specified transformations. It also extracts the corresponding label from the DataFrame and converts it to a NumPy array. The ```__len__```method returns the total number of samples in the dataset.
 
 
-### Training and Testing 
+## Training and Testing 
 
 For the training and testing of the model, I employed the BCEWithLogitsLoss() loss function, which applies a sigmoid transformation to the data, resulting in values between 0 and 1. 
 To align these values with the label tensor, I utilized a threshold to round the data down to 0 or up to 1, effectively converting it into binary form. This gets the predicted labels into a form which can be
 compared against the actual labels 
 
+### Hyperparameters for the test 
+```
+learning_rate = 0.001
+criterion = nn.BCEWithLogitsLoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+```
 
-### Measuring the models performance 
+The model was evaluated at multiple epochs, including 10, 20, 50, and 70, to assess its performance at different stages of training. 
+Additionally, various threshold values, such as 0.05, 0.1, 0.2, 0.3, 0.4, and 0.5, were tested to determine the impact on classification results. 
+This comprehensive evaluation allowed for a thorough analysis of the model's performance across different training epochs and threshold values.
+
+-- Include test performed with details 
+
+
+## Measuring the models performance 
 
 For measuring the performance of the model I included some multi-label confusion matrix to get a insight on what the model is predicting for each class.
 Also, I included a ROC to look at the True positive vs False positive rate which includes a legend with the auc score for each class 
@@ -71,20 +84,6 @@ On the other hand, raising the threshold resulted in an increase in overall accu
 Model DenseNet 121 - I used the pre-trained model to evaluate how the accuracy changes with a Deeper CNN. I seen a slight improvement in the models performance but not a big improvement 
 
 -- Add information about weighted BCE loss function and how it affects the models performance 
-
-
-## Test 
-
-Hyperparameters & Loss function
-```
-learning_rate = 0.001
-criterion = nn.BCEWithLogitsLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
-```
-
-
--- Include test performed with details 
-
 
 
 ## Results 
