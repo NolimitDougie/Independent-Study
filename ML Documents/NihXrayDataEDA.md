@@ -52,13 +52,14 @@ compared against the actual labels
 
 ### Measuring the models performance 
 
-For measuring the performance of the model I included some multi-label confusion matrix to get a insight on what the model is predicting for each class. 
+For measuring the performance of the model I included some multi-label confusion matrix to get a insight on what the model is predicting for each class.
+Also, I included a ROC to look at the True positive vs False positive rate which includes a legend with the auc score for each class 
 
--- Add more information here 
+During the testing I would stop the model to evaluate the predicted label probabilities vs the actual labels then I would look again after I round the probabilities to see what the model is predicting overall
 
 ## Models
 
-Model - DenseNet 121 
+Model - DenseNet 121
 
 Model  - A custom architecture with 4 convolution filters and 3 fully connected layers.
 
@@ -66,6 +67,11 @@ Model  - A custom architecture with 4 convolution filters and 3 fully connected 
 
 During the testing phase, I noticed the threshold's impact on the model's accuracy and true positive rate. When the threshold was lowered, the model's overall accuracy exhibited a decrease, but this reduction in accuracy was accompanied by an increase in the true positive rate as revealed by the confusion matrix. 
 On the other hand, raising the threshold resulted in an increase in overall accuracy, but this increment in accuracy was accompanied by a decrease in the true positive rate
+
+Model DenseNet 121 - I used the pre-trained model to evaluate how the accuracy changes with a Deeper CNN. I seen a slight improvement in the models performance but not a big improvement 
+
+-- Add information about weighted BCE loss function and how it affects the models performance 
+
 
 ## Test 
 
@@ -78,6 +84,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=
 
 
 -- Include test performed with details 
+
 
 
 ## Results 
