@@ -143,7 +143,7 @@ class ConvNet(nn.Module):
         # self.conv7_bn = nn.BatchNorm2d(128)
 
         # Definition of the MaxPooling layer
-        self.pool = nn.MaxPool2d(2, 2)
+        self.pool = nn.AvgPool2d(2, 2)
 
         # 1. fully-connected layer
         self.fc1 = nn.Linear(128 * 61 * 61, 128)
@@ -197,7 +197,7 @@ weight_decay = 1e-1
 learning_rate = 0.001
 # eof Hyper Parameters
 criterion = nn.BCEWithLogitsLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 
 def train(epoch):
@@ -255,7 +255,7 @@ def test():
             outputs = model(images)
             predicted_probs = torch.sigmoid(outputs)
             # predicted_labels = torch.round(predicted_probs)
-            predicted_labels = (predicted_probs > 0.20).float()
+            predicted_labels = (predicted_probs > 0.05).float()
 
             test_predictions.append(predicted_labels.cpu().numpy())
             test_labels.append(labels.cpu().numpy())
