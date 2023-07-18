@@ -101,28 +101,31 @@ Custom Model -
 ## Results 
 
 Model: DenseNet 121
-Epochs: 50
+Epochs: 20
 Training Size:
-Testing size: 
+Testing size:
+Class Accuracy:
 
 
 Model: ResNet 50
-Epochs: 50
+Epochs: 20
 Training Size:
 Testing size: 
+Class Accuracy:
 
 
 
 Model: Custom Model
-Epochs: 50
+Epochs: 20
 Training Size:
 Testing size: 
+Class Accuracy:
 
 
 
 
 
--- Include details about results 
+
 
 
 
