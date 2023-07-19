@@ -31,7 +31,7 @@ Infiltration|Nodule           829
 
 ## Implementation Discussion
 
-## Preprocessing 
+### Preprocessing 
 
 To prepare the dataset to be fed through the neural network, several preprocessing steps and data augmentation techniques were applied. The process began by reading in the 'Data_Entry_2017.csv' file and creating a dataframe. 
 Then, a loop was executed to map the image paths to the corresponding rows in the dataframe.
@@ -42,11 +42,29 @@ In addition, a new column called 'disease_vec' was introduced to the dataframe. 
 
 From there I created a custom PyTorch dataset class called XrayDataset that takes a DataFrame containing image paths and labels as input. The ```__getitem__``` method retrieves a sample by opening the image at a given index, converting it to RGB, and applying specified transformations. It also extracts the corresponding label from the DataFrame and converts it to a NumPy array. The ```__len__```method returns the total number of samples in the dataset.
 
-### Class Imbalance 
+### Class Imbalance
 
-To handle the class imbalance with the dataset I implemented a weighted BCE loss function. I calculated the positive weight for each class then passed it into the loss function as a parameter```nn.BCEWithLogitsLoss(pos_weight=pos_wt).to(mps_device)```
-this assigns a weight to the positive class during the loss calculation this can help address the class imbalances within the dataset
+To address the class imbalance in the dataset, I utilized a weighted Binary Cross Entropy (BCE) loss function. This method assigns individual weights to each class based on its sample frequency, emphasizing rarer classes with higher positive weights and assigning lower weights to more common classes. 
+By incorporating this approach during model training as 
+nn.BCEWithLogitsLoss(pos_weight=pos_wt).to(mps_device), the neural network gained insights into the significance of correctly classifying underrepresented examples. This ensured the model's focus on minority classes, ultimately improving its ability to handle the class imbalance problem effectively. The goal was to create a more accurate and robust model that could deliver reliable predictions across all classes in the dataset, leading to improved overall performance.
 
+| Classes            | Training Data Frame Distribution | Test Data Frame Distribution |
+|--------------------|----------------------------------|------------------------------|
+| Atelectasis        | 9289.0                           | 2270.0                       |
+| Consolidation      | 3742.0                           | 925.0                        |
+| Infiltration       | 15937.0                          | 3957.0                       |
+| Pneumothorax       | 4276.0                           | 1026.0                       |
+| Edema              | 1842.0                           | 461.0                        |
+| Emphysema          | 2032.0                           | 484.0                        |
+| Fibrosis           | 1330.0                           | 356.0                        |
+| Effusion           | 10672.0                          | 2645.0                       |
+| Pneumonia          | 1169.0                           | 262.0                        |
+| Pleural_Thickening | 2753.0                           | 632.0                        |
+| Cardiomegaly       | 2203.0                           | 573.0                        | 
+| Nodule             | 5069.0                           | 1262.0                       |
+| Mass               | 4651.0                           | 1131.0                       |
+| Hernia             | 185.0                            | 42.0                         |
+| No Finding         | 48218.0                          | 12143.0                      |   
 ## Training
 
 For the training and testing of the model, I employed the BCEWithLogitsLoss() loss function, which applies a sigmoid transformation to the data, resulting in values between 0 and 1. 
@@ -61,12 +79,9 @@ Also, I included a ROC to look at the True positive vs False positive rate which
 During the testing I would stop the model to evaluate the predicted label probabilities vs the actual labels then I would look again after I round the probabilities to see what the model is predicting overall
 
 ## Models
-
-Pretrained models:
-
 DenseNet 121
 
-Res Net50
+Res-Net50
 
 Custom Model - This model has a custom architecture with 4 convolution filters and 3 fully connected layers.
 
@@ -90,9 +105,9 @@ This comprehensive evaluation allowed for a thorough analysis of the model's per
 During the testing phase, I noticed the threshold's impact on the model's accuracy and true positive rate. When the threshold was lowered, the model's overall accuracy exhibited a decrease, but this reduction in accuracy was accompanied by an increase in the true positive rate as revealed by the confusion matrix. 
 On the other hand, raising the threshold resulted in an increase in overall accuracy, but this increment in accuracy was accompanied by a decrease in the true positive rate
 
-Model DenseNet 121 - I used the pre-trained model to evaluate how the accuracy changes with a Deeper CNN. I seen a slight improvement in the models performance but not a big improvement 
+DenseNet 121 - I used the pre-trained model to evaluate how the accuracy changes with a Deeper CNN. I seen a slight improvement in the models performance but not a big improvement 
 
-Model ResNet50 - 
+ResNet50 - 
 
 Custom Model -
 
@@ -101,22 +116,22 @@ Custom Model -
 ## Results 
 
 Model: DenseNet 121
-Epochs: 20
+Epochs: 50
 Training Size:
 Testing size:
 Class Accuracy:
 
 
 Model: ResNet 50
-Epochs: 20
-Training Size:
-Testing size: 
+Epochs: 50
+Training Size: 12000
+Testing size: 8000
 Class Accuracy:
 
 
 
 Model: Custom Model
-Epochs: 20
+Epochs: 50
 Training Size:
 Testing size: 
 Class Accuracy:
