@@ -102,14 +102,14 @@ train_dataset = XrayDataset(train_df)
 
 test_loader = torch.utils.data.DataLoader(
     test_dataset,
-    batch_size=8000,
+    batch_size=10000,
     num_workers=0,
     shuffle=True,
 )
 
 train_loader = torch.utils.data.DataLoader(
     train_dataset,
-    batch_size=12000,
+    batch_size=18000,
     num_workers=0,
     shuffle=True,
 )
@@ -205,7 +205,7 @@ print(model)
 
 
 # Hyper Parameters
-num_epochs = 25
+num_epochs = 3
 weight_decay = 1e-1
 learning_rate = 0.001
 # eof Hyper Parameters
@@ -214,11 +214,11 @@ num_pos_labels = train_df[condition_labels].sum(axis=0)
 num_neg_labels = len(train_df) - num_pos_labels
 pos_wt = torch.tensor(num_neg_labels / num_pos_labels, dtype=torch.float32)
 # Calculate pos_weight for each class
-print(pos_wt, "###### Positive weights ###")
+# print(pos_wt, "###### Positive weights ###")
 
 criterion = nn.BCEWithLogitsLoss(weight=class_weights_tensor).to(mps_device)
 # criterion = nn.BCEWithLogitsLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
 
 def train(epoch):
@@ -270,7 +270,7 @@ def test(model, data_loader, device):
             labels = labels.to(device)
             outputs = model(images)
             predicted_probs = torch.sigmoid(outputs)
-            predicted_labels = (predicted_probs > 0.40).float()
+            predicted_labels = (predicted_probs > 0.001).float()
 
             test_predictions.append(predicted_labels.cpu().numpy())
             test_labels.append(labels.cpu().numpy())
