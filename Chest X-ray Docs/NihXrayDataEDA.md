@@ -118,9 +118,8 @@ Training Size: 89600
 
 Testing size: 20000
 
-Threshold: 0.5 
+Threshold: 0.5
 
-Class Accuracy:
 Prediction Accuracy per Class:
 ````
 Atelectasis: 0.8949
@@ -156,6 +155,36 @@ No Finding: 0.6078
 ````
 
 
+Model: ResNet-50
+
+
+Epochs: 25
+
+Training Size: 18000
+
+Testing size: 10000
+
+Threshold: 0.35
+
+Prediction Accuracy per Class:
+````
+Prediction Accuracy per Class:
+Atelectasis: 0.9007
+Consolidation: 0.9604
+Infiltration: 0.8219
+Pneumothorax: 0.9515
+Edema: 0.9793
+Emphysema: 0.9753
+Fibrosis: 0.9822
+Effusion: 0.8839
+Pneumonia: 0.9878
+Pleural_Thickening: 0.9706
+Cardiomegaly: 0.9749
+Nodule: 0.9418
+Mass: 0.9490
+Hernia: 0.9987
+No Finding: 0.5373
+````
 
 Model: Custom Model
 
@@ -167,7 +196,6 @@ Testing size: 10000
 
 Threshold : 0.5
 
-Class Accuracy:
 Prediction Accuracy per Class:
 ```
 Atelectasis: 0.8964
