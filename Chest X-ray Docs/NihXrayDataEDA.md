@@ -44,9 +44,7 @@ From there I created a custom PyTorch dataset class called XrayDataset that take
 
 ### Class Imbalance
 
-To address the class imbalance in the dataset, I utilized a weighted Binary Cross Entropy (BCE) loss function. This method assigns individual weights to each class based on its sample frequency, emphasizing rarer classes with higher positive weights and assigning lower weights to more common classes. 
-By incorporating this approach during model training as 
-nn.BCEWithLogitsLoss(pos_weight=pos_wt).to(mps_device), the neural network gained insights into the significance of correctly classifying underrepresented examples. This ensured the model's focus on minority classes, ultimately improving its ability to handle the class imbalance problem effectively. The goal was to create a more accurate and robust model that could deliver reliable predictions across all classes in the dataset, leading to improved overall performance.
+ To handle this issue, the code calculates the number of positive and negative labels for each class and then computes a positive weight for each class based on the ratio of negative to positive labels. This positive weight is then used in the loss function to give more importance to underrepresented positive classes during model training, effectively tackling data imbalance and improving the model's performance.
 
 | Classes            | Training Data Frame Distribution | Test Data Frame Distribution |
 |--------------------|----------------------------------|------------------------------|
@@ -65,6 +63,7 @@ nn.BCEWithLogitsLoss(pos_weight=pos_wt).to(mps_device), the neural network gaine
 | Mass               | 4651.0                           | 1131.0                       |
 | Hernia             | 185.0                            | 42.0                         |
 | No Finding         | 48218.0                          | 12143.0                      |   
+
 ## Training
 
 For the training and testing of the model, I employed the BCEWithLogitsLoss() loss function, which applies a sigmoid transformation to the data, resulting in values between 0 and 1. 
@@ -79,6 +78,7 @@ Also, I included a ROC to look at the True positive vs False positive rate which
 During the testing I would stop the model to evaluate the predicted label probabilities vs the actual labels then I would look again after I round the probabilities to see what the model is predicting overall
 
 ## Models
+
 DenseNet 121
 
 Res-Net50
@@ -94,47 +94,109 @@ criterion = nn.BCEWithLogitsLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 ```
 
-The model was evaluated at multiple epochs, including 10, 20, 50, and 70, to assess its performance at different stages of training. 
-Additionally, various threshold values, such as 0.05, 0.1, 0.2, 0.3, 0.4, and 0.5, were tested to determine the impact on classification results. 
+The model was evaluated at multiple epochs, including 20, 35, and 40 to assess its performance at different stages of training. 
+Additionally, various threshold values, such as 0.25, 0.35 and 0.5, were tested to determine the impact on classification results. 
 This comprehensive evaluation allowed for a thorough analysis of the model's performance across different training epochs and threshold values.
 
--- Include test performed with details 
 
 ## Observations 
 
 During the testing phase, I noticed the threshold's impact on the model's accuracy and true positive rate. When the threshold was lowered, the model's overall accuracy exhibited a decrease, but this reduction in accuracy was accompanied by an increase in the true positive rate as revealed by the confusion matrix. 
 On the other hand, raising the threshold resulted in an increase in overall accuracy, but this increment in accuracy was accompanied by a decrease in the true positive rate
 
-DenseNet 121 - I used the pre-trained model to evaluate how the accuracy changes with a Deeper CNN. I seen a slight improvement in the models performance but not a big improvement 
-
-ResNet50 - 
-
-Custom Model -
+The model's accuracy is significantly influenced by the data distribution of all 15 labels in the training dataset. Notably, it achieves a remarkable accuracy of 82-86% in predicting classes like Effusion and Infiltration, which are seen as the second and third most frequent labels in the dataset. Additionally, the model shows a consistent accuracy rate of 60-64% in predicting "no finding," which happens to be the most prevalent class in the training data. These findings suggest that the model tends to perform better on classes that it has encountered more frequently during training, while still showing respectable accuracy for the other classes.
 
 
 
 ## Results 
 
 Model: DenseNet 121
-Epochs: 50
-Training Size:
-Testing size:
+
+Epochs: 25
+
+Training Size:18000
+
+Testing size:1000
+
 Class Accuracy:
 
 
-Model: ResNet 50
-Epochs: 50
-Training Size: 12000
-Testing size: 8000
+Model: ResNet-50
+
+Epochs: 25
+
+Training Size: 89600
+
+Testing size: 20000
+
+Threshold: 0.5 
+
 Class Accuracy:
+Prediction Accuracy per Class:
+````
+Atelectasis: 0.8949
+
+Consolidation: 0.9587
+
+Infiltration: 0.8237
+
+Pneumothorax: 0.9514
+
+Edema: 0.9794
+
+Emphysema: 0.9782
+
+Fibrosis: 0.9841
+
+Effusion: 0.8650
+
+Pneumonia: 0.9883
+
+Pleural_Thickening: 0.9700
+
+Cardiomegaly: 0.9738
+
+Nodule: 0.9437
+
+Mass: 0.9494
+
+Hernia: 0.9981
+
+No Finding: 0.6078
+
+````
 
 
 
 Model: Custom Model
-Epochs: 50
-Training Size:
-Testing size: 
+
+Epochs: 20
+
+Training Size: 18000 
+
+Testing size: 10000
+
+Threshold : 0.5
+
 Class Accuracy:
+Prediction Accuracy per Class:
+```
+Atelectasis: 0.8964
+Consolidation: 0.9586
+Infiltration: 0.8239
+Pneumothorax: 0.9536
+Edema: 0.9791
+Emphysema: 0.9768
+Fibrosis: 0.9827
+Effusion: 0.8816
+Pneumonia: 0.9886
+Pleural_Thickening: 0.9717
+Cardiomegaly: 0.9752
+Nodule: 0.9441
+Mass: 0.9489
+Hernia: 0.9985
+No Finding: 0.5406
+````
 
 
 
