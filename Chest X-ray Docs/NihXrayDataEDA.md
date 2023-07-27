@@ -110,17 +110,6 @@ The model's accuracy is significantly influenced by the data distribution of all
 
 ## Results 
 
-Model: DenseNet 121
-
-Epochs: 25
-
-Training Size:18000
-
-Testing size:1000
-
-Class Accuracy:
-
-
 Model: ResNet-50
 
 Epochs: 25
