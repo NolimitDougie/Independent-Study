@@ -54,26 +54,16 @@ all_xray_df.head()
 # eof of one hot encoding
 
 # Splitting the Data Frames into 80:20 split ###
-train_df, test_df = train_test_split(all_xray_df, test_size=0.20, random_state=2020)
+train_df, test_df = train_test_split(all_xray_df, test_size=0.30, random_state=2020)
 #  eof Data Splitting ###
-
-# Count the number of samples in each class
-# class_counts = train_df[condition_labels].sum()
-# print("Training DataFrame:\n", class_counts)
-# test_count = test_df[condition_labels].sum()
-# print("Test Dataframe distribution:\n", test_count)
-# exit()
 
 class_counts2 = train_df[condition_labels].sum()
 total_samples = len(train_df)
 class_weights = total_samples / (len(condition_labels) * class_counts2)
-# Convert class weights to a tensor
 class_weights_tensor = torch.FloatTensor(class_weights.values)
-print(class_weights_tensor)
 
 
 # Custom X-ray data set for NIH Data
-
 class XrayDataset(torch.utils.data.Dataset):
     def __init__(self, data_frame, transform=None):
         self.data_frame = data_frame
@@ -102,33 +92,32 @@ train_dataset = XrayDataset(train_df)
 
 test_loader = torch.utils.data.DataLoader(
     test_dataset,
-    batch_size=10000,
+    batch_size=64,
     num_workers=0,
-    shuffle=True,
+    shuffle=False,
 )
 
 train_loader = torch.utils.data.DataLoader(
     train_dataset,
-    batch_size=18000,
+    batch_size=64,
     num_workers=0,
     shuffle=True,
 )
 
-train_dataiter = iter(train_loader)
-test_dataiter = iter(test_loader)
-train_samples = next(train_dataiter)
-test_samples = next(test_dataiter)
-
-train_dataset_3000 = TensorDataset(train_samples[0], train_samples[1])
-test_dataset_5000 = TensorDataset(test_samples[0], test_samples[1])
-
-train_loader = DataLoader(train_dataset_3000, batch_size=64, shuffle=True, num_workers=0)
-test_loader = DataLoader(test_dataset_5000, batch_size=64, shuffle=False, num_workers=0)
+# train_dataiter = iter(train_loader)
+# test_dataiter = iter(test_loader)
+# train_samples = next(train_dataiter)
+# test_samples = next(test_dataiter)
+#
+# train_dataset_3000 = TensorDataset(train_samples[0], train_samples[1])
+# test_dataset_5000 = TensorDataset(test_samples[0], test_samples[1])
+#
+# train_loader = DataLoader(train_dataset_3000, batch_size=64, shuffle=True, num_workers=0)
+# test_loader = DataLoader(test_dataset_5000, batch_size=64, shuffle=False, num_workers=0)
 
 # eof Dataloader #
 np.random.seed(42)
 torch.manual_seed(42)
-
 
 # class ConvNet(nn.Module):
 #     def __init__(self):
@@ -172,23 +161,10 @@ torch.manual_seed(42)
 #
 #
 # model = ConvNet().to(mps_device)
-# class DenseNet121(nn.Module):
-#     def __init__(self):
-#         super(DenseNet121, self).__init__()
-#         self.densenet121 = torchvision.models.densenet121(weight_decay)
-#         self.densenet121.classifier = nn.Sequential(
-#             nn.Linear(1024, 15)
-#         )
-#
-#     def forward(self, x):
-#         x = self.densenet121(x)
-#         return x
-# model = DenseNet121().to(mps_device)
 
-# # Set up ResNet model
-# num_classes = 15  # Number of pathology labels
-#
-# # Load pre-trained ResNet50 model
+# Set up ResNet 50 model
+num_classes = 15  # Number of pathology labels
+# Load pre-trained ResNet50 model
 base_model = torchvision.models.resnet50(pretrained=True)
 # Freeze the parameters of the base model
 for param in base_model.parameters():
@@ -203,9 +179,8 @@ model = base_model.to(mps_device)
 # Print the model summary
 print(model)
 
-
 # Hyper Parameters
-num_epochs = 3
+num_epochs = 1
 weight_decay = 1e-1
 learning_rate = 0.001
 # eof Hyper Parameters
@@ -253,6 +228,8 @@ def train(epoch):
                        100. * i / len(train_loader), loss.item()))
 
 
+# After creating the optimizer, create the learning rate scheduler
+scheduler = lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.1)
 # Train the model
 for epoch in range(1, num_epochs + 1):
     train(epoch)
@@ -263,6 +240,8 @@ def test(model, data_loader, device):
     test_predictions = []
     test_labels = []
     class_accuracy = []
+    class_precision = []
+    class_f1_score = []
 
     with torch.no_grad():
         for images, labels in data_loader:
@@ -270,32 +249,40 @@ def test(model, data_loader, device):
             labels = labels.to(device)
             outputs = model(images)
             predicted_probs = torch.sigmoid(outputs)
-            predicted_labels = (predicted_probs > 0.001).float()
+            predicted_labels = (predicted_probs > 0.15).float()
 
             test_predictions.append(predicted_labels.cpu().numpy())
             test_labels.append(labels.cpu().numpy())
 
     test_predictions = np.concatenate(test_predictions)
     test_labels = np.concatenate(test_labels)
-    macro_f1 = f1_score(test_labels, test_predictions, average='macro')
+    macro_f1 = f1_score(test_labels, test_predictions, average='macro', zero_division=1)
     accuracy = accuracy_score(test_labels, test_predictions)
-    hamming_loss_score = hamming_loss(test_labels, test_predictions)
 
-    # Calculate prediction accuracy for each class
+    # Calculate prediction accuracy, precision, and F1 score for each class
     for i, class_label in enumerate(condition_labels):
         class_accuracy.append(accuracy_score(test_labels[:, i], test_predictions[:, i]))
+        class_precision.append(precision_score(test_labels[:, i], test_predictions[:, i]))
+        class_f1_score.append(f1_score(test_labels[:, i], test_predictions[:, i]))
 
-    # print('Test Accuracy: %.4f, Test F1-score: %.4f' % (accuracy, macro_f1))
     print('Model Macro F1-score: %.4f' % macro_f1)
-    print('Model Hamming Loss: %.4f' % hamming_loss_score)
-    print('Prediction Accuracy per Class:')
+    print('Model Accuracy: %.4f' % accuracy)
+
+    print('Prediction Metrics per Class:')
     for i, class_label in enumerate(condition_labels):
-        print('%s: %.4f' % (class_label, class_accuracy[i]))
+        print('%s - Accuracy: %.4f, Precision: %.4f, F1-score: %.4f' % (
+            class_label, class_accuracy[i], class_precision[i], class_f1_score[i]))
 
-    return test_labels, test_predictions, class_accuracy
+    # Compute the classification report
+    class_report = classification_report(test_labels, test_predictions, target_names=condition_labels, digits=3)
+
+    print('Classification Report:')
+    print(class_report)
+
+    return test_labels, test_predictions, class_accuracy, class_precision, class_f1_score
 
 
-test_labels, test_predictions, class_accuracy = test(model, test_loader, mps_device)
+test_labels, test_predictions, class_accuracy, class_precision, class_f1_score = test(model, test_loader, mps_device)
 
 # Multi-Label Confusion Matrix
 confusion = multilabel_confusion_matrix(test_labels, test_predictions)
