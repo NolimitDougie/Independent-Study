@@ -56,10 +56,6 @@ all_xray_df.head(20)
 all_xray_df['disease_vec'] = all_xray_df.apply(lambda target: [target[condition_labels].values], 1).map(
     lambda target: target[0])
 
-# Adjust the labels for binary classification
-# all_xray_df['Finding'] = all_xray_df['Finding Labels'].apply(lambda x: 1 if 'No Finding' not in x else 0)
-# all_xray_df.to_csv('all_xray_data.csv', index=False)
-
 all_xray_df.head()
 
 balanced_data = []
