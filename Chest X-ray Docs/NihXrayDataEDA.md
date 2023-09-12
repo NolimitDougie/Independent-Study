@@ -22,6 +22,7 @@ Atelectasis|Effusion         1165
 Pleural_Thickening           1126
 Cardiomegaly                 1093
 Emphysema                     892
+Hernia                        247
 Infiltration|Nodule           829
 ```
 
@@ -105,115 +106,6 @@ During the testing phase, I noticed the threshold's impact on the model's accura
 On the other hand, raising the threshold resulted in an increase in overall accuracy, but this increment in accuracy was accompanied by a decrease in the true positive rate
 
 The model's accuracy is significantly influenced by the data distribution of all 15 labels in the training dataset. Notably, it achieves a remarkable accuracy of 82-86% in predicting classes like Effusion and Infiltration, which are seen as the second and third most frequent labels in the dataset. Additionally, the model shows a consistent accuracy rate of 60-64% in predicting "no finding," which happens to be the most prevalent class in the training data. These findings suggest that the model tends to perform better on classes that it has encountered more frequently during training, while still showing respectable accuracy for the other classes.
-
-
-
-## Results 
-
-Model: ResNet-50
-
-Epochs: 25
-
-Training Size: 89600
-
-Testing size: 20000
-
-Threshold: 0.5
-
-Prediction Accuracy per Class:
-````
-Atelectasis: 0.8949
-
-Consolidation: 0.9587
-
-Infiltration: 0.8237
-
-Pneumothorax: 0.9514
-
-Edema: 0.9794
-
-Emphysema: 0.9782
-
-Fibrosis: 0.9841
-
-Effusion: 0.8650
-
-Pneumonia: 0.9883
-
-Pleural_Thickening: 0.9700
-
-Cardiomegaly: 0.9738
-
-Nodule: 0.9437
-
-Mass: 0.9494
-
-Hernia: 0.9981
-
-No Finding: 0.6078
-
-````
-
-
-Model: ResNet-50
-
-
-Epochs: 25
-
-Training Size: 18000
-
-Testing size: 10000
-
-Threshold: 0.35
-
-Prediction Accuracy per Class:
-````
-Prediction Accuracy per Class:
-Atelectasis: 0.9007
-Consolidation: 0.9604
-Infiltration: 0.8219
-Pneumothorax: 0.9515
-Edema: 0.9793
-Emphysema: 0.9753
-Fibrosis: 0.9822
-Effusion: 0.8839
-Pneumonia: 0.9878
-Pleural_Thickening: 0.9706
-Cardiomegaly: 0.9749
-Nodule: 0.9418
-Mass: 0.9490
-Hernia: 0.9987
-No Finding: 0.5373
-````
-
-Model: Custom Model
-
-Epochs: 20
-
-Training Size: 18000 
-
-Testing size: 10000
-
-Threshold : 0.5
-
-Prediction Accuracy per Class:
-```
-Atelectasis: 0.8964
-Consolidation: 0.9586
-Infiltration: 0.8239
-Pneumothorax: 0.9536
-Edema: 0.9791
-Emphysema: 0.9768
-Fibrosis: 0.9827
-Effusion: 0.8816
-Pneumonia: 0.9886
-Pleural_Thickening: 0.9717
-Cardiomegaly: 0.9752
-Nodule: 0.9441
-Mass: 0.9489
-Hernia: 0.9985
-No Finding: 0.5406
-````
 
 
 
