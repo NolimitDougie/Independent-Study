@@ -112,7 +112,6 @@ train_transform = transforms.Compose([
 
 # Data Sets
 train_dataset = XrayDataset(train_df, transform=train_transform)
-
 test_dataset = XrayDataset(test_df, transform=transforms.Compose([
     transforms.Resize(224),
     transforms.ToTensor(),
@@ -134,15 +133,16 @@ test_loader = torch.utils.data.DataLoader(
     shuffle=False,
 )
 
-# Load pre-trained ResNet50 model
-base_model = torchvision.models.resnet50(pretrained=True)
-# Freeze the parameters of the base model
-for param in base_model.parameters():
-    param.requires_grad = False
-
-# Replace the last fully connected layer with a new one for multi-label classification
-num_features = base_model.fc.in_features
-base_model.fc = nn.Linear(num_features, 15)
+# # Load pre-trained ResNet50 model
+# base_model = torchvision.models.resnet50(pretrained=True)
+# # Freeze the parameters of the base model
+# for param in base_model.parameters():
+#     param.requires_grad = False
+#
+# # Replace the last fully connected layer with a new one for multi-label classification
+# num_features = base_model.fc.in_features
+# base_model.fc = nn.Linear(num_features, 15)
+#
 
 # Create the final model
 model = base_model.to(mps_device)
@@ -150,9 +150,10 @@ model = base_model.to(mps_device)
 # print(model)
 
 # Hyperparameters/Loss Function
-num_epochs = 40
+num_epochs = 10
 weight_decay = 1e-4
-learning_rate = 0.01
+learning_rate = 0.0001
+# learning_rate = 0.01
 
 criterion = nn.BCEWithLogitsLoss().to(mps_device)
 
