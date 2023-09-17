@@ -10,6 +10,7 @@ from torch.utils.data import Dataset, DataLoader, TensorDataset
 import torch.nn as nn
 import torch
 import torchvision
+from torchvision.models import ResNet50_Weights
 import seaborn as sns
 from tqdm import tqdm
 from PIL import Image
@@ -134,15 +135,15 @@ test_loader = torch.utils.data.DataLoader(
 )
 
 # # Load pre-trained ResNet50 model
-# base_model = torchvision.models.resnet50(pretrained=True)
-# # Freeze the parameters of the base model
-# for param in base_model.parameters():
-#     param.requires_grad = False
-#
-# # Replace the last fully connected layer with a new one for multi-label classification
-# num_features = base_model.fc.in_features
-# base_model.fc = nn.Linear(num_features, 15)
-#
+base_model = torchvision.models.resnet50(weights=ResNet50_Weights.DEFAULT)
+# Freeze the parameters of the base model
+for param in base_model.parameters():
+    param.requires_grad = False
+
+# Replace the last fully connected layer with a new one for multi-label classification
+num_features = base_model.fc.in_features
+base_model.fc = nn.Linear(num_features, 15)
+
 
 # Create the final model
 model = base_model.to(mps_device)
@@ -150,9 +151,9 @@ model = base_model.to(mps_device)
 # print(model)
 
 # Hyperparameters/Loss Function
-num_epochs = 10
+num_epochs = 1
 weight_decay = 1e-4
-learning_rate = 0.0001
+learning_rate = 0.001
 # learning_rate = 0.01
 
 criterion = nn.BCEWithLogitsLoss().to(mps_device)
@@ -215,7 +216,7 @@ def test(model, data_loader, device):
     test_predictions = np.concatenate(test_predictions)
     test_labels = np.concatenate(test_labels)
     macro_f1 = f1_score(test_labels, test_predictions, average='weighted', zero_division=1)
-    accuracy = accuracy_score(test_labels, test_predictions)
+    # accuracy = accuracy_score(test_labels, test_predictions)
 
     # Calculate prediction accuracy, precision, and F1 score for each class
     for i, class_label in enumerate(condition_labels):
