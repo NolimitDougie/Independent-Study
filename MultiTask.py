@@ -52,3 +52,16 @@ all_xray_df['disease_vec'] = all_xray_df.apply(lambda target: [target[condition_
 all_xray_df['No Finding vs Finding'] = all_xray_df['No Finding'].apply(lambda x: 1 if x == 1.0 else 0)
 
 all_xray_df.head()
+print(all_xray_df[condition_labels].sum())
+disease_counts = all_xray_df[condition_labels].sum().sort_values(ascending=False)
+
+# Step 2: Split diseases into three groups
+group1_labels = disease_counts.index[:5].tolist()
+group2_labels = disease_counts.index[5:10].tolist()
+group3_labels = disease_counts.index[10:].tolist()
+
+# Step 3: Create three dataframes based on the groups
+df_group1 = all_xray_df[all_xray_df[group1_labels].sum(axis=1) > 0]
+df_group2 = all_xray_df[all_xray_df[group2_labels].sum(axis=1) > 0]
+df_group3 = all_xray_df[all_xray_df[group3_labels].sum(axis=1) > 0]
+
