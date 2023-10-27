@@ -49,29 +49,6 @@ all_xray_df.head(20)
 
 all_xray_df['disease_vec'] = all_xray_df.apply(lambda target: [target[condition_labels].values], 1).map(
     lambda target: target[0])
+
 all_xray_df.head()
 
-disease_counts = all_xray_df[condition_labels].sum().sort_values(ascending=False)
-
-# Filter out rows that have only one label
-single_label_df = all_xray_df[all_xray_df[condition_labels].sum(axis=1) == 1]
-
-# Create separate dataframes for each label
-label_dfs = {label: single_label_df[single_label_df[label] == 1] for label in condition_labels}
-
-# Sort the labels based on counts
-sorted_labels = sorted(disease_counts.index, key=lambda x: disease_counts[x], reverse=True)
-
-# Divide the sorted labels into batches
-batch1_labels = sorted_labels[:5]
-batch2_labels = sorted_labels[5:10]
-batch3_labels = sorted_labels[10:]
-
-# Group dataframes for each batch
-batch1_data = pd.concat([label_dfs[label] for label in batch1_labels])
-batch2_data = pd.concat([label_dfs[label] for label in batch2_labels])
-batch3_data = pd.concat([label_dfs[label] for label in batch3_labels])
-# For multi-label instances
-multi_label_data = all_xray_df[all_xray_df[condition_labels].sum(axis=1) > 1]
-
-print(multi_label_data[condition_labels].sum())
