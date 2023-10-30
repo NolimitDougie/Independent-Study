@@ -55,25 +55,7 @@ all_xray_df['disease_vec'] = all_xray_df.apply(lambda target: [target[condition_
 
 all_xray_df.head()
 
-print(all_xray_df[condition_labels].sum())
-exit()
-
-balanced_data = []
-# Target Samples for each class
-samples_per_class = 220
-
-for label in condition_labels:
-    class_samples = all_xray_df[all_xray_df[label] == 1].sample(samples_per_class, random_state=42)
-    balanced_data.append(class_samples)
-
-# Concatenate the balanced data samples for all classes
-balanced_df = pd.concat(balanced_data)
-
-# Reset the index of the new DataFrame
-balanced_df.reset_index(drop=True, inplace=True)
-
-# 70:30 split for Training and Testing data
-train_df, test_df = train_test_split(balanced_df, test_size=0.30, random_state=2020)
+train_df, test_df = train_test_split(all_xray_df, test_size=0.30, random_state=2020)
 
 
 class XrayDataset(torch.utils.data.Dataset):
