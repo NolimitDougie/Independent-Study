@@ -302,14 +302,14 @@ def test(model, data_loader, device):
 results = test(model, test_loader, device=device)
 
 # Calculate ROC curve and AUC for each class
-for i, label in enumerate(condition_labels):
-    fpr, tpr, thresholds = roc_curve(test_labels[:, i], test_predictions[:, i])
-    auc_score = roc_auc_score(test_labels[:, i], test_predictions[:, i])
-
-    c_ax.plot(fpr, tpr, label='%s (AUC:%0.2f)' % (label, auc_score))
-
-# Set labels for plot
-c_ax.legend()
-c_ax.set_xlabel('False Positive Rate')
-c_ax.set_ylabel('True Positive Rate')
-plt.show()
+# for i, label in enumerate(condition_labels):
+#     fpr, tpr, thresholds = roc_curve(test_labels[:, i], test_predictions[:, i])
+#     auc_score = roc_auc_score(test_labels[:, i], test_predictions[:, i])
+#
+#     c_ax.plot(fpr, tpr, label='%s (AUC:%0.2f)' % (label, auc_score))
+#
+# # Set labels for plot
+# c_ax.legend()
+# c_ax.set_xlabel('False Positive Rate')
+# c_ax.set_ylabel('True Positive Rate')
+# plt.show()
