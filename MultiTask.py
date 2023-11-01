@@ -23,11 +23,6 @@ import torch.optim.lr_scheduler as lr_scheduler
 from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score, roc_auc_score, \
     multilabel_confusion_matrix, roc_curve, auc, classification_report
 
-# Device configuration GPU support for MAC
-# if torch.backends.mps.is_available():
-#     mps_device = torch.device("mps")
-# else:
-#     print("MPS device not found.")
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -79,7 +74,7 @@ balanced_df = pd.concat(balanced_data)
 # Reset the index of the new DataFrame
 balanced_df.reset_index(drop=True, inplace=True)
 
-train_df, test_df = train_test_split(balanced_df, test_size=0.30, random_state=2020)
+train_df, test_df = train_test_split(balanced_df, test_size=0.30, random_state=42)
 
 
 class XrayDataset(torch.utils.data.Dataset):
@@ -107,6 +102,7 @@ train_transform = transforms.Compose([
     transforms.Resize(224),
     transforms.RandomHorizontalFlip(),
     transforms.RandomRotation(10),
+    transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1),
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
 ])
@@ -206,7 +202,7 @@ model = model.to(device)
 main_loss_function = nn.BCEWithLogitsLoss().to(device=device)  # For multi-label classification
 minority_loss_function = nn.CrossEntropyLoss().to(device)  # For single-label classification
 
-num_epochs = 15
+num_epochs = 5
 decay = 1e-4
 optimizer = optim.Adam(model.parameters(), lr=0.01, weight_decay=decay)
 scheduler = lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.1)
@@ -241,7 +237,7 @@ def train(epoch):
         loss_minority = minority_loss_function(minority_out_from_minority, torch.max(minority_labels, 1)[1])
 
         # Combine the losses with a regularization term for the minority branch
-        lambda_reg = 2.2
+        lambda_reg = 10
         total_loss = loss_main + lambda_reg * loss_minority
 
         # Backward and optimize
@@ -279,7 +275,7 @@ def test(model, data_loader, device):
             # Pass the same batch of images to both branches of your model
             main_out, _ = model(images, None)
             predicted_probs = torch.sigmoid(main_out)
-            predicted_labels = (predicted_probs > 0.10).float()
+            predicted_labels = (predicted_probs > 0.3).float()
 
             test_predictions_list.append(predicted_labels.cpu().numpy())
             test_labels_list.append(labels.cpu().numpy())
