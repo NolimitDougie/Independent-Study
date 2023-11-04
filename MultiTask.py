@@ -23,7 +23,6 @@ import torch.optim.lr_scheduler as lr_scheduler
 from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score, roc_auc_score, \
     multilabel_confusion_matrix, roc_curve, auc, classification_report
 
-
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Paths to Images and DataEntry file
@@ -51,30 +50,23 @@ all_xray_df['disease_vec'] = all_xray_df.apply(lambda target: [target[condition_
 
 all_xray_df.head()
 
-# Count occurrences of each condition
 condition_counts = all_xray_df[condition_labels].sum().sort_values(ascending=False)
-# Take the bottom 5 as minority classes
 minority_labels = condition_counts.tail(5).index.tolist()
-# Filtering the rows
 minority_df = all_xray_df[all_xray_df[minority_labels].sum(axis=1) == 1]
-# Ensuring they are single labeled
 minority_df = minority_df[minority_df[condition_labels].sum(axis=1) == 1]
 
 balanced_data = []
-# Target Samples for each class
-samples_per_class = 50
+samples_per_class = 100
 
 for label in condition_labels:
     class_samples = all_xray_df[all_xray_df[label] == 1].sample(samples_per_class, random_state=42)
     balanced_data.append(class_samples)
 
-# Concatenate the balanced data samples for all classes
 balanced_df = pd.concat(balanced_data)
-
-# Reset the index of the new DataFrame
 balanced_df.reset_index(drop=True, inplace=True)
 
 train_df, test_df = train_test_split(balanced_df, test_size=0.30, random_state=42)
+train_df, valid_df = train_test_split(train_df, test_size=0.1, random_state=42)
 
 
 class XrayDataset(torch.utils.data.Dataset):
@@ -100,7 +92,6 @@ class XrayDataset(torch.utils.data.Dataset):
 # Define data augmentation for training
 train_transform = transforms.Compose([
     transforms.Resize(224),
-    transforms.RandomHorizontalFlip(),
     transforms.RandomRotation(10),
     transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1),
     transforms.ToTensor(),
@@ -109,17 +100,26 @@ train_transform = transforms.Compose([
 
 # Data Sets
 train_dataset = XrayDataset(train_df, transform=train_transform)
+valid_dataset = XrayDataset(valid_df, transform=train_transform)
 test_dataset = XrayDataset(test_df, transform=transforms.Compose([
     transforms.Resize(224),
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
 ]))
+
 # Data Loaders
 train_loader = DataLoader(
     train_dataset,
     batch_size=32,
     num_workers=0,
     shuffle=True,
+)
+
+valid_loader = DataLoader (
+    valid_dataset,
+    batch_size=32,
+    num_workers=0,
+    shuffle=False
 )
 
 test_loader = torch.utils.data.DataLoader(
@@ -129,21 +129,10 @@ test_loader = torch.utils.data.DataLoader(
     shuffle=False,
 )
 
-minority_train_df, minority_test_df = train_test_split(minority_df, test_size=0.30, random_state=2020)
-minority_train_dataset = XrayDataset(minority_train_df, transform=train_transform)
-minority_test_dataset = XrayDataset(minority_test_df, transform=transforms.Compose([
-    transforms.Resize(224),
-    transforms.ToTensor(),
-    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
-]))
+minority_train_dataset = XrayDataset(minority_df, transform=train_transform)
+
 minority_train_loader = DataLoader(
     minority_train_dataset,
-    batch_size=32,
-    num_workers=0,
-    shuffle=True,
-)
-minority_test_loader = DataLoader(
-    minority_test_dataset,
     batch_size=32,
     num_workers=0,
     shuffle=True,
@@ -165,7 +154,7 @@ class MultiBranchDenseNet(nn.Module):
             nn.Linear(512, num_classes),
         )
 
-        # Minority Branch (softmax for the last layer)
+        # Minority Branch
         self.minority_branch = nn.Sequential(
             nn.Linear(1024, 512),
             nn.ReLU(),
@@ -198,6 +187,7 @@ num_classes = len(condition_labels)  # 14 in your case
 model = MultiBranchDenseNet(num_classes)
 model = model.to(device)
 
+
 # Define the loss functions
 main_loss_function = nn.BCEWithLogitsLoss().to(device=device)  # For multi-label classification
 minority_loss_function = nn.CrossEntropyLoss().to(device)  # For single-label classification
@@ -205,7 +195,7 @@ minority_loss_function = nn.CrossEntropyLoss().to(device)  # For single-label cl
 num_epochs = 5
 decay = 1e-4
 optimizer = optim.Adam(model.parameters(), lr=0.01, weight_decay=decay)
-scheduler = lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.1)
+scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=5, verbose=True)
 
 
 def train(epoch):
@@ -237,7 +227,7 @@ def train(epoch):
         loss_minority = minority_loss_function(minority_out_from_minority, torch.max(minority_labels, 1)[1])
 
         # Combine the losses with a regularization term for the minority branch
-        lambda_reg = 10
+        lambda_reg = 2
         total_loss = loss_main + lambda_reg * loss_minority
 
         # Backward and optimize
@@ -275,7 +265,7 @@ def test(model, data_loader, device):
             # Pass the same batch of images to both branches of your model
             main_out, _ = model(images, None)
             predicted_probs = torch.sigmoid(main_out)
-            predicted_labels = (predicted_probs > 0.3).float()
+            predicted_labels = (predicted_probs > 0.12).float()
 
             test_predictions_list.append(predicted_labels.cpu().numpy())
             test_labels_list.append(labels.cpu().numpy())
