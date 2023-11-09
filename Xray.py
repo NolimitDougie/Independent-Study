@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import pickle
 from glob import glob
+import torchvision.models
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 from torchvision import datasets, transforms
@@ -10,7 +11,7 @@ from torch.utils.data import Dataset, DataLoader, TensorDataset
 import torch.nn as nn
 import torch
 from torchvision import models
-from torchvision.models import ResNet50_Weights, DenseNet121_Weights
+from torchvision.models import ResNet50_Weights, DenseNet121_Weights, EfficientNet_B4_Weights, efficientnet_b4
 import seaborn as sns
 from tqdm import tqdm
 from itertools import cycle
@@ -21,7 +22,7 @@ import torch.optim as optim
 from sklearn.utils import resample
 import torch.optim.lr_scheduler as lr_scheduler
 from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score, roc_auc_score, \
-    multilabel_confusion_matrix, roc_curve, auc, classification_report
+    multilabel_confusion_matrix, roc_curve, auc, classification_report, precision_recall_curve
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -56,7 +57,7 @@ minority_df = all_xray_df[all_xray_df[minority_labels].sum(axis=1) == 1]
 minority_df = minority_df[minority_df[condition_labels].sum(axis=1) == 1]
 
 balanced_data = []
-samples_per_class = 50
+samples_per_class = 75
 
 for label in condition_labels:
     class_samples = all_xray_df[all_xray_df[label] == 1].sample(samples_per_class, random_state=42)
@@ -93,7 +94,6 @@ class XrayDataset(torch.utils.data.Dataset):
 train_transform = transforms.Compose([
     transforms.Resize(224),
     transforms.RandomRotation(10),
-    transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.1),
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
 ])
@@ -115,7 +115,7 @@ train_loader = DataLoader(
     shuffle=True,
 )
 
-valid_loader = DataLoader (
+valid_loader = DataLoader(
     valid_dataset,
     batch_size=32,
     num_workers=0,
@@ -182,20 +182,70 @@ class MultiBranchDenseNet(nn.Module):
         return main_out, minority_out
 
 
-num_classes = len(condition_labels)  # 14 in your case
-
-model = MultiBranchDenseNet(num_classes)
+model = MultiBranchDenseNet(len(condition_labels))
 model = model.to(device)
-
 
 # Define the loss functions
 main_loss_function = nn.BCEWithLogitsLoss().to(device=device)  # For multi-label classification
-minority_loss_function = nn.CrossEntropyLoss().to(device)  # For single-label classification
+minority_loss_function = nn.CrossEntropyLoss().to(device=device)  # For single-label classification
 
-num_epochs = 1
+num_epochs = 60
 decay = 1e-4
 optimizer = optim.Adam(model.parameters(), lr=0.01, weight_decay=decay)
-scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=5, verbose=True)
+scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=2, verbose=True)
+
+
+def validate(model, valid_loader):
+    model.eval()  # Set the model to evaluation mode
+    val_running_loss = 0.0
+
+    with torch.no_grad():
+        for main_images, main_labels in valid_loader:
+            main_images, main_labels = main_images.to(device), main_labels.to(device)
+
+            # Forward pass
+            main_out, _ = model(main_images, main_images)
+            loss_main = main_loss_function(main_out, main_labels)
+
+            val_running_loss += loss_main.item()
+
+    return val_running_loss / len(valid_loader)
+
+
+def find_optimal_thresholds(model, validation_loader, device):
+    model.eval()
+    # Assuming binary or one-hot encoded labels for multi-label classification
+    all_labels = []
+    all_predictions = []
+
+    with torch.no_grad():
+        for images, labels in validation_loader:
+            images, labels = images.to(device), labels.to(device)
+
+            # Get predictions for both branches, here we assume a single output for simplicity
+            main_out, _ = model(images, None)
+            predicted_probs = torch.sigmoid(main_out)
+
+            all_labels.append(labels.cpu())
+            all_predictions.append(predicted_probs.cpu())
+
+    all_labels = torch.cat(all_labels).numpy()
+    all_predictions = torch.cat(all_predictions).numpy()
+
+    optimal_thresholds = []
+    for i in range(all_labels.shape[1]):  # Iterate over each class
+        precision, recall, thresholds = precision_recall_curve(all_labels[:, i], all_predictions[:, i])
+        if len(thresholds) > 0:
+            f1_scores = 2 * precision * recall / (precision + recall + 1e-10)
+            # Find the threshold that maximized the F1 score
+            optimal_idx = np.argmax(f1_scores)
+            optimal_threshold = thresholds[optimal_idx]
+        else:
+            optimal_threshold = .10
+        optimal_thresholds.append(optimal_threshold)
+        print(f"Class {i} optimal threshold: {optimal_threshold}")
+
+    return optimal_thresholds
 
 
 def train(epoch):
@@ -227,7 +277,7 @@ def train(epoch):
         loss_minority = minority_loss_function(minority_out_from_minority, torch.max(minority_labels, 1)[1])
 
         # Combine the losses with a regularization term for the minority branch
-        lambda_reg = 2.5
+        lambda_reg = 2
         total_loss = loss_main + lambda_reg * loss_minority
 
         # Backward and optimize
@@ -239,20 +289,31 @@ def train(epoch):
         running_main_loss += loss_main.item()
         running_minority_loss += loss_minority.item()
 
+    # After training steps, get the validation loss
+    val_loss = validate(model, valid_loader)
+    print(f'Validation Loss: {val_loss:.4f}')
+
+    # Step with the validation loss for the ReduceLROnPlateau scheduler
+    scheduler.step(val_loss)
+
     # Print the final epoch-wise statistics
     print(
-        f"Epoch [{epoch}/{num_epochs}], Main Loss: {running_main_loss / len(train_loader):.4f}, Minority Loss: {running_minority_loss / len(train_loader):.4f}, Total Loss: {running_loss / len(train_loader):.4f}")
-    scheduler.step()
+        f"Epoch [{epoch}/{num_epochs}], Main Loss: {running_main_loss / len(train_loader):.4f}, "
+        f"Minority Loss: {running_minority_loss / len(train_loader):.4f}, "
+        f"Total Loss: {running_loss / len(train_loader):.4f}"
+    )
 
 
 # Call the training loop
 for epoch in range(1, num_epochs + 1):
     train(epoch)
 
+optimal_thresholds = find_optimal_thresholds(model, valid_loader, device)
+print(optimal_thresholds)
+
 
 def test(model, data_loader, device):
     model.eval()
-
     test_predictions_list = []
     test_labels_list = []
     test_predictions_probs_list = []
@@ -265,7 +326,8 @@ def test(model, data_loader, device):
             # Pass the same batch of images to both branches of your model
             main_out, _ = model(images, None)
             predicted_probs = torch.sigmoid(main_out)
-            predicted_labels = (predicted_probs > 0.12).float()
+            x = torch.tensor(optimal_thresholds, device=device)
+            predicted_labels = (predicted_probs > x).float()
 
             test_predictions_list.append(predicted_labels.cpu().numpy())
             test_labels_list.append(labels.cpu().numpy())
@@ -274,9 +336,9 @@ def test(model, data_loader, device):
     test_predictions = np.concatenate(test_predictions_list)
     test_labels = np.concatenate(test_labels_list)
 
-    macro_f1 = f1_score(test_labels, test_predictions, average='macro', zero_division=1)
+    weighted_f1 = f1_score(test_labels, test_predictions, average='weighted', zero_division=1)
 
-    print('Model Macro F1-score: %.4f' % macro_f1)
+    print('Test F1-score (weighted): %.4f' % weighted_f1)
 
     class_report = classification_report(test_labels, test_predictions, target_names=condition_labels, digits=2)
     print('Classification Report:')
@@ -285,17 +347,4 @@ def test(model, data_loader, device):
     return test_labels, test_predictions
 
 
-results = test(model, test_loader, device=device)
-
-# Calculate ROC curve and AUC for each class
-# for i, label in enumerate(condition_labels):
-#     fpr, tpr, thresholds = roc_curve(test_labels[:, i], test_predictions[:, i])
-#     auc_score = roc_auc_score(test_labels[:, i], test_predictions[:, i])
-#
-#     c_ax.plot(fpr, tpr, label='%s (AUC:%0.2f)' % (label, auc_score))
-#
-# # Set labels for plot
-# c_ax.legend()
-# c_ax.set_xlabel('False Positive Rate')
-# c_ax.set_ylabel('True Positive Rate')
-# plt.show()
+test_labels, test_predictions = test(model, test_loader, device=device)

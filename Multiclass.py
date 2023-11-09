@@ -56,6 +56,32 @@ all_xray_df = all_xray_df[all_xray_df[condition_labels].sum(axis=1) == 1]
 
 all_xray_df.head()
 
+# balanced_data = []
+# samples_per_class = 500
+#
+# for label in condition_labels:
+#     # Get all samples for the class
+#     class_subset = all_xray_df[all_xray_df[label] == 1]
+#
+#     # Check if the class needs to be oversampled
+#     n_samples = len(class_subset)
+#     if n_samples < samples_per_class:
+#         class_subset = resample(class_subset,
+#                                 replace=True,  # Sample with replacement
+#                                 n_samples=samples_per_class,  # Match the target sample size
+#                                 random_state=42)  # Reproducible results
+#     else:
+#         # Otherwise, just sample without replacement
+#         class_subset = class_subset.sample(samples_per_class, random_state=42)
+#
+#     balanced_data.append(class_subset)
+#
+# # Concatenate the balanced data samples for all classes
+# balanced_df = pd.concat(balanced_data)
+#
+# # Reset the index of the new DataFrame
+# balanced_df.reset_index(drop=True, inplace=True)
+
 train_df, test_df = train_test_split(all_xray_df, test_size=0.30, random_state=42)
 train_df, valid_df = train_test_split(train_df, test_size=0.1, random_state=42)
 
@@ -139,8 +165,15 @@ test_loader = torch.utils.data.DataLoader(
     shuffle=False,
 )
 
-criterion = nn.CrossEntropyLoss().to(device=device)  # For single-label classification
-num_epochs = 20
+class_counts = all_xray_df[condition_labels].sum().values
+total_samples = class_counts.sum()
+class_weights = total_samples / (len(class_counts) * class_counts)
+class_weights = class_weights / class_weights.sum()
+weights_tensor = torch.FloatTensor(class_weights).to(device)
+
+
+criterion = nn.CrossEntropyLoss(weight=weights_tensor).to(device=device)  # For single-label classification
+num_epochs = 30
 decay = 1e-4
 optimizer = optim.Adam(model.parameters(), lr=0.01, weight_decay=decay)
 scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=2, verbose=True)
@@ -238,21 +271,21 @@ def test(model, data_loader, device):
 
             # Softmax is applied here by torch.max() as nn.CrossEntropyLoss() expects raw scores
             _, predicted_labels = torch.max(outputs, 1)
-            probs = F.softmax(outputs, dim=1)
+            # probs = F.softmax(outputs, dim=1)
 
             test_predictions.append(predicted_labels.cpu().numpy())
             test_labels.append(labels.cpu().numpy())
-            test_predictions_probs.append(probs.cpu().numpy())
+            # test_predictions_probs.append(probs.cpu().numpy())
 
     test_predictions = np.concatenate(test_predictions)
     test_labels = np.concatenate(test_labels)
-    test_predictions_probs = np.concatenate(test_predictions_probs)
+    # test_predictions_probs = np.concatenate(test_predictions_probs)
 
     # Here we calculate the overall accuracy
     accuracy = accuracy_score(test_labels, test_predictions)
 
     # Calculate F1 score using 'weighted' to account for label imbalance
-    weighted_f1 = f1_score(test_labels, test_predictions, average='weighted')
+    weighted_f1 = f1_score(test_labels, test_predictions, average='weighted', zero_division=0)
 
     # Print overall test metrics
     print('Test Accuracy: %.4f' % accuracy)

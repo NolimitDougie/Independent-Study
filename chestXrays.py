@@ -143,6 +143,9 @@ base_model.fc = CustomHead(num_features, hidden_features=256, out_features=15)
 # # Create the final model
 model = base_model.to(mps_device)
 
+print(model)
+exit()
+
 # # Freeze the parameters of the base model
 # for param in base_model.parameters():
 #     param.requires_grad = False
